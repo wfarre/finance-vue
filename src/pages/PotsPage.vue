@@ -1,19 +1,35 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import PotCard from "../components/ui/PotCard.vue";
 import Select from "../components/ui/Select.vue";
 import AddEditModal from "../components/layout/AddEditModal.vue";
 import Button from "../components/ui/Button.vue";
 import { computed } from "@vue/reactivity";
 import PageHeader from "../components/layout/PageHeader.vue";
+import { PotFactory } from "../factories/PotFactory";
+import type { PotAPI } from "../utils/typePot";
+
+const potsData = ref<PotFactory[]>([]);
+
+fetch("/data/data.json")
+  .then((res) => res.json())
+  .then((data) => {
+    const formattedPots = data.pots.map(
+      (pot: PotAPI) => new PotFactory(pot, "json"),
+    );
+    potsData.value = formattedPots;
+  });
 
 const potName = ref("");
 const target = ref(0);
 const theme = ref("green");
+const amountToAdd = ref(0);
+
 const isModalOpen = ref(false);
-const modalStatus = ref<"edit" | "add">("add");
-const amountToWitdraw = ref(0);
-const isSavingsModalOpen = ref(true);
+const modalStatus = ref<"edit" | "add" | "addMoney">("add");
+
+const isSavingsModalOpen = ref(false);
+const currentIndex = ref<number | null>(null);
 
 const options = {
   green: "bg-secondary-green",
@@ -33,6 +49,23 @@ const addEditModalContent = computed(() => ({
       : "Edit Pot",
   formMethod: modalStatus.value === "add" ? "POST" : "PUT",
 }));
+
+const formFields = computed(() => {
+  const currentPot =
+    currentIndex.value !== null && potsData.value[currentIndex.value];
+
+  console.log(currentPot);
+  console.log(potsData.value);
+
+  return !currentPot
+    ? { potName: "", theme: "green", target: 0, total: 0 }
+    : {
+        potName: currentPot?.name,
+        theme: currentPot?.theme,
+        target: currentPot?.target,
+        total: currentPot?.total,
+      };
+});
 </script>
 
 <template>
@@ -106,39 +139,50 @@ const addEditModalContent = computed(() => ({
     <AddEditModal
       v-if="isSavingsModalOpen"
       @close-modal="() => (isSavingsModalOpen = false)"
-      :modal-title="addEditModalContent.title"
-      :modal-text="addEditModalContent.subtitle"
+      :modal-title="`Add to '${formFields.potName}'`"
+      modal-text="Add money to your pot to keep it separate from your main balance. As soon as you add this money, it will be deducted from your current balance."
       form="addForm"
     >
       <section>
         <div class="flex flex-col gap-4">
           <dl class="flex items-center justify-between">
-            <dt class="text-grey-500 text-sm">Total Saved</dt>
-            <dd class="text-[32px] font-bold">$159.00</dd>
+            <dt class="text-grey-500 text-sm">New Amount</dt>
+            <dd class="text-[32px] font-bold">${{ formFields.total }}</dd>
           </dl>
           <div class="bg-beige-100 h-2 w-full overflow-hidden rounded-2xl">
             <div
-              :class="`w-[${String(percent)}%]`"
-              class="bg-secondary-green h-full"
-            ></div>
+              :style="[
+                `transform:scaleX(${Math.round(((formFields.total + amountToAdd) / formFields.target) * 100)}%) `,
+              ]"
+              class="bg-grey-900 h-full w-full origin-left overflow-hidden rounded-2xl transition-all duration-700"
+            >
+              <div
+                :style="[
+                  `transform:scaleX(${Math.round((amountToAdd / (formFields.total + amountToAdd)) * 100)}%) `,
+                ]"
+                class="bg-secondary-green h-full w-full origin-right transition-all duration-700"
+              ></div>
+            </div>
           </div>
           <dl class="text-grey-500 flex justify-between text-xs">
-            <dt>7.97%</dt>
-            <dd>Traget of 2000$</dd>
+            <dt>
+              {{ Math.round((formFields.total / formFields.target) * 100) }}%
+            </dt>
+            <dd>Traget of {{ formFields.target }}$</dd>
           </dl>
         </div>
       </section>
-      <form action="">
-        <label for="amountToWitdraw" class="flex flex-col gap-1">
-          Amount to Withdraw
+      <form class="mt-5" action="">
+        <label for="amountToAdd" class="flex flex-col gap-1">
+          Amount to Add
           <input
-            :value="amountToWitdraw"
+            :value="amountToAdd"
             v-on:input="
-              (e) => (amountToWitdraw = +(e.target as HTMLInputElement).value)
+              (e) => (amountToAdd = +(e.target as HTMLInputElement).value)
             "
             type="number"
-            name="amountToWitdraw"
-            id="amountToWitdraw"
+            name="amountToAdd"
+            id="amountToAdd"
             class="border-grey-900 h-11 rounded-lg border px-5 text-sm"
           />
         </label>
@@ -147,32 +191,25 @@ const addEditModalContent = computed(() => ({
 
     <section>
       <ul class="flex flex-col flex-wrap gap-6 lg:flex-row">
-        <li class="flex-1/3">
+        <li v-if="potsData" v-for="(pot, index) of potsData">
           <PotCard
+            :value="pot.total"
+            :name="pot.name"
+            :target="pot.target"
+            :theme="pot.theme"
+            :id="index"
             @edit="
               (potId) => {
                 modalStatus = 'edit';
                 isModalOpen = true;
+                currentIndex = potId;
               }
             "
-          />
-        </li>
-        <li class="flex-1/3">
-          <PotCard
-            @edit="
+            @add-money="
               (potId) => {
-                modalStatus = 'edit';
-                isModalOpen = true;
-              }
-            "
-          />
-        </li>
-        <li class="flex-1/3">
-          <PotCard
-            @edit="
-              (potId) => {
-                modalStatus = 'edit';
-                isModalOpen = true;
+                modalStatus = 'addMoney';
+                isSavingsModalOpen = true;
+                currentIndex = potId;
               }
             "
           />

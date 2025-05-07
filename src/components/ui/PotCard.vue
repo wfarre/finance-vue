@@ -1,14 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import Icon from "../Icon.vue";
 import Button from "./Button.vue";
 
 const percent = ref(50);
 const isMenuOpened = ref(false);
+const props = defineProps<{
+  target: number;
+  value: number;
+  theme: string;
+  name: string;
+  id: number;
+}>();
 
 const toggleOpenMenu = () => (isMenuOpened.value = !isMenuOpened.value);
 
-const emits = defineEmits<{ (e: "edit", id: string): void }>();
+const percentage = computed(() =>
+  Math.round((props.value / props.target) * 100),
+);
+const percentageClass = computed(() => `w-[${String(percentage.value)}%]`);
+
+const emits = defineEmits<{
+  (e: "edit", id: number): void;
+  (e: "addMoney", id: number): void;
+}>();
 
 window.addEventListener("click", (e) => {
   console.log();
@@ -17,13 +32,28 @@ window.addEventListener("click", (e) => {
     ? (isMenuOpened.value = false)
     : (isMenuOpened.value = isMenuOpened.value);
 });
+
+const options = {
+  green: "bg-secondary-green",
+  yellow: "bg-secondary-yellow",
+  cyan: "bg-secondary-cyan",
+  navy: "bg-secondary-navy",
+  red: "bg-secondary-red",
+  purple: "bg-secondary-purple",
+  turquoise: "bg-tertiary-turquoise",
+};
+
+const themes = (theme: string) => options[theme as keyof object] || "";
 </script>
 
 <template>
   <article class="relative z-0 rounded-2xl bg-white p-6">
     <header class="relative mb-8 flex items-center gap-4">
-      <div class="bg-secondary-green h-4 w-4 rounded-full"></div>
-      <h3 class="text-xl font-bold">Savings</h3>
+      <div
+        :style="[`backgroundColor:${theme}`]"
+        class="h-4 w-4 rounded-full"
+      ></div>
+      <h3 class="text-xl font-bold">{{ name }}</h3>
       <button
         class="optionsMenu ml-auto flex cursor-pointer items-center justify-center"
         v-on:click="toggleOpenMenu"
@@ -37,7 +67,7 @@ window.addEventListener("click", (e) => {
         <li>
           <button
             class="cursor-pointer py-4 text-sm capitalize"
-            v-on:click="() => emits('edit', '1')"
+            v-on:click="() => emits('edit', id)"
           >
             Edit Pot
           </button>
@@ -56,22 +86,30 @@ window.addEventListener("click", (e) => {
     <div class="flex flex-col gap-4">
       <dl class="flex items-center justify-between">
         <dt class="text-grey-500 text-sm">Total Saved</dt>
-        <dd class="text-[32px] font-bold">$159.00</dd>
+        <dd class="text-[32px] font-bold">${{ value }}</dd>
       </dl>
       <div class="bg-beige-100 h-2 w-full overflow-hidden rounded-2xl">
         <div
-          :class="`w-[${String(percent)}%]`"
-          class="bg-secondary-green h-full"
+          :style="[
+            `transform:scaleX(${percentage}%) `,
+            `backgroundColor:${theme}`,
+          ]"
+          class="h-full w-full origin-left transition-all duration-700"
         ></div>
       </div>
       <dl class="text-grey-500 flex justify-between text-xs">
-        <dt>7.97%</dt>
-        <dd>Traget of 2000$</dd>
+        <dt>{{ percentage }}%</dt>
+        <dd>Traget of {{ target }}$</dd>
       </dl>
     </div>
 
     <footer class="mt-8 flex gap-4">
-      <Button bgColor="bg-beige-100" textColor="text-grey-900" class="flex-1">
+      <Button
+        @on-button-clicked="() => emits('addMoney', id)"
+        bgColor="bg-beige-100"
+        textColor="text-grey-900"
+        class="flex-1"
+      >
         + Add Money
       </Button>
       <Button bgColor="bg-beige-100" textColor="text-grey-900" class="flex-1">

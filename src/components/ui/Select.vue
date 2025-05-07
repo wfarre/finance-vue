@@ -4,7 +4,6 @@ import { computed } from "vue";
 const props = defineProps<{ options: object; value: string }>();
 const optionList = computed(() => Object.keys(props.options));
 const emits = defineEmits<{ (e: "select", newValue: string): void }>();
-
 const themes = (theme: string) => props.options[theme as keyof object] || "";
 </script>
 
