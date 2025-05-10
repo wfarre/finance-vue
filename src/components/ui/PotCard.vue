@@ -2,8 +2,8 @@
 import { computed, ref } from "vue";
 import Icon from "../Icon.vue";
 import Button from "./Button.vue";
+import { formatCurrency } from "../../utils/utils";
 
-const percent = ref(50);
 const isMenuOpened = ref(false);
 const props = defineProps<{
   target: number;
@@ -18,11 +18,11 @@ const toggleOpenMenu = () => (isMenuOpened.value = !isMenuOpened.value);
 const percentage = computed(() =>
   Math.round((props.value / props.target) * 100),
 );
-const percentageClass = computed(() => `w-[${String(percentage.value)}%]`);
 
 const emits = defineEmits<{
   (e: "edit", id: number): void;
   (e: "addMoney", id: number): void;
+  (e: "withdrawMoney", id: number): void;
 }>();
 
 window.addEventListener("click", (e) => {
@@ -32,18 +32,6 @@ window.addEventListener("click", (e) => {
     ? (isMenuOpened.value = false)
     : (isMenuOpened.value = isMenuOpened.value);
 });
-
-const options = {
-  green: "bg-secondary-green",
-  yellow: "bg-secondary-yellow",
-  cyan: "bg-secondary-cyan",
-  navy: "bg-secondary-navy",
-  red: "bg-secondary-red",
-  purple: "bg-secondary-purple",
-  turquoise: "bg-tertiary-turquoise",
-};
-
-const themes = (theme: string) => options[theme as keyof object] || "";
 </script>
 
 <template>
@@ -86,7 +74,7 @@ const themes = (theme: string) => options[theme as keyof object] || "";
     <div class="flex flex-col gap-4">
       <dl class="flex items-center justify-between">
         <dt class="text-grey-500 text-sm">Total Saved</dt>
-        <dd class="text-[32px] font-bold">${{ value }}</dd>
+        <dd class="text-[32px] font-bold">{{ formatCurrency(value) }}</dd>
       </dl>
       <div class="bg-beige-100 h-2 w-full overflow-hidden rounded-2xl">
         <div
@@ -99,7 +87,7 @@ const themes = (theme: string) => options[theme as keyof object] || "";
       </div>
       <dl class="text-grey-500 flex justify-between text-xs">
         <dt>{{ percentage }}%</dt>
-        <dd>Traget of {{ target }}$</dd>
+        <dd>Traget of {{ formatCurrency(target, false) }}</dd>
       </dl>
     </div>
 
@@ -112,7 +100,12 @@ const themes = (theme: string) => options[theme as keyof object] || "";
       >
         + Add Money
       </Button>
-      <Button bgColor="bg-beige-100" textColor="text-grey-900" class="flex-1">
+      <Button
+        bgColor="bg-beige-100"
+        textColor="text-grey-900"
+        class="flex-1"
+        v-on:on-button-clicked="() => emits('withdrawMoney', id)"
+      >
         withdraw
       </Button>
     </footer>

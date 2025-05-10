@@ -1,4 +1,5 @@
 import type { PotAPI } from "../utils/typePot";
+import { roundNumberToTwoDecinals } from "../utils/utils";
 
 export class Pot {
   private _name: string;

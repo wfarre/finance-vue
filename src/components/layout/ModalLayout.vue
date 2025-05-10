@@ -2,7 +2,7 @@
 import Icon from "../Icon.vue";
 import Button from "../ui/Button.vue";
 
-const props = defineProps<{
+defineProps<{
   modalTitle: string;
   modalText: string;
   form: string;
