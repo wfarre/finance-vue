@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import PotCard from "../components/ui/PotCard.vue";
+import PotCard from "../components/ui/cards/PotCard.vue";
 import { computed } from "@vue/reactivity";
 import PageHeader from "../components/layout/PageHeader.vue";
 import { PotFactory } from "../factories/PotFactory";

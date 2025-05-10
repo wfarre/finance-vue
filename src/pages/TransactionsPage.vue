@@ -3,55 +3,13 @@
   <main>
     <section class="rounded-2xl bg-white">
       <header class="flex gap-6 px-8 pt-8">
-        <label
-          for=""
-          class="border-grey-500 flex items-center gap-4 rounded-lg border px-5 py-3"
-        >
-          <input
-            :value="searchBy"
-            class="text-sm"
-            type="text"
-            placeholder="Search transaction"
-            v-on:input="(e) => (searchBy = (<HTMLInputElement>e.target).value)"
-          />
-          <img src="/images/icon-search.svg" alt="search" />
-        </label>
-        <label class="text-grey-500 ml-auto flex items-center gap-4">
-          Sort By
-          <select
-            :value="sortByFilter"
-            class="border-beige-500 rounded-lg border px-5 py-3 text-sm"
-            v-on:change="
-              (e) => (sortByFilter = (<HTMLInputElement>e.target).value)
-            "
-          >
-            <option value="latest">Latest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A to Z</option>
-            <option value="za">Z to A</option>
-            <option value="highest">Highest</option>
-            <option value="lowest">Lowest</option>
-          </select>
-        </label>
-
-        <label class="text-grey-500 flex items-center gap-4">
-          Category
-          <select
-            class="border-beige-500 rounded-lg border px-5 py-3 text-sm"
-            :value="categoryFilter"
-            v-on:change="
-              (e) => (categoryFilter = (<HTMLInputElement>e.target).value)
-            "
-          >
-            <option value="all">All Transactions</option>
-            <option value="entertaimenet">Entertaiment</option>
-            <option value="bills">Bills</option>
-            <option value="groceries">groceries</option>
-            <option value="dining out">Dining Out</option>
-            <option value="transportation">transportation</option>
-            <option value="personal care">Personal Care</option>
-          </select>
-        </label>
+        <SearchBar v-model="searchBy" />
+        <SortSelect v-model="sortByFilter" />
+        <SortSelect
+          v-model="categoryFilter"
+          :options="categoryOptions"
+          label="Category"
+        />
       </header>
 
       <div>
@@ -123,14 +81,26 @@ import { TransactionFactory } from "../factories/TransactionFactory";
 import type { TransactionAPI } from "../utils/typeTransaction";
 import Pagination from "../components/ui/Pagination.vue";
 import PageHeader from "../components/layout/PageHeader.vue";
+import SearchBar from "../components/ui/SearchBar.vue";
+import SortSelect from "../components/ui/FilterSelect.vue";
 
 const currentPage = ref(1);
 const resultPerPage = 10;
 const categoryFilter = ref("all");
-const sortByFilter = ref("az");
+const sortByFilter = ref("latest");
 const searchBy = ref("");
 const filteredTransaction = ref<TransactionFactory[]>([]);
 const transactionsData = ref<TransactionFactory[]>([]);
+
+const categoryOptions = [
+  "All",
+  "Entertaiment",
+  "Bills",
+  "Groceries",
+  "Dining Out",
+  "Transportation",
+  "Personal Care",
+];
 
 const filterBySearch = <T extends TransactionFactory>(
   array: T[],

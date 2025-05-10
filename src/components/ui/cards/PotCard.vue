@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import Icon from "../Icon.vue";
-import Button from "./Button.vue";
-import { formatCurrency } from "../../utils/utils";
+import Icon from "../../Icon.vue";
+import Button from "../Button.vue";
+import { formatCurrency } from "../../../utils/utils";
 
 const isMenuOpened = ref(false);
 const props = defineProps<{

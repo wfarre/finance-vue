@@ -67,10 +67,10 @@
 </template>
 
 <script setup lang="ts">
-import OverviewCard from "../components/ui/OverviewCard.vue";
-import PotsSplitCard from "../components/ui/PotsSplitCard.vue";
-import ValueCard from "../components/ui/ValueCard.vue";
-import TransactionCard from "../components/ui/TransactionCard.vue";
+import OverviewCard from "../components/ui/cards/OverviewCard.vue";
+import PotsSplitCard from "../components/ui/cards/PotsSplitCard.vue";
+import ValueCard from "../components/ui/cards/ValueCard.vue";
+import TransactionCard from "../components/ui/cards/TransactionCard.vue";
 import Chart from "../components/ui/MyChart.vue";
 import { computed, ref } from "vue";
 import PageHeader from "../components/layout/PageHeader.vue";

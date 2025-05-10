@@ -30,7 +30,7 @@ const themes = (theme: string) => props.options[theme as keyof object] || "";
   </label>
 </template>
 
-<style lang="css">
+<style scoped lang="css">
 select,
 select::picker(select) {
   appearance: base-select;
