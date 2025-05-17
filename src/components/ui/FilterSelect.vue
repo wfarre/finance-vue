@@ -26,7 +26,7 @@ const selectOptions = computed(() =>
     {{ label ? label : "Sort By" }}
     <select
       v-model="model"
-      class="border-beige-500 rounded-lg border px-5 py-3 text-sm"
+      class="border-beige-500 hover:border-grey-900 cursor-pointer rounded-lg border px-5 py-3 text-sm"
     >
       <option v-for="option in selectOptions" :value="option.toLowerCase()">
         {{ option }}

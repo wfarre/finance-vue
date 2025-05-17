@@ -30,7 +30,21 @@ const emit = defineEmits<{ (e: "closeModal"): void }>();
       </header>
       <slot></slot>
       <footer class="mt-5">
-        <Button :form="form" class="w-full">Submit</Button>
+        <Button
+          :form="form"
+          class="w-full"
+          :class="form === 'delete-form' && 'bg-secondary-red'"
+          >{{
+            form === "delete-form" ? "Yes, Confirm Deletion" : "Submit"
+          }}</Button
+        >
+        <button
+          v-if="form === 'delete-form'"
+          class="text-grey-500 mt-5 w-full cursor-pointer bg-transparent text-sm"
+          v-on:click="() => emit('closeModal')"
+        >
+          No, Go Back
+        </button>
       </footer>
     </section>
   </div>

@@ -78,8 +78,8 @@ onMounted(() => {
       cutout: 80,
       plugins: {
         legend: {
-          position: "right",
-          title: "spendingß",
+          display: false,
+          position: "bottom",
         },
       },
     },

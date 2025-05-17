@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ModalLayout from "./ModalLayout.vue";
-import type { PotFactory } from "../../factories/PotFactory";
 import Select from "../ui/Select.vue";
 import { kColors } from "../../utils/constants";
+import type { IPot, Pot } from "../../models/Pot";
 const emits = defineEmits<{
   (e: "closeModal"): void;
+  (e: "updateUI"): void;
 }>();
 const props = defineProps<{
   formType: "add" | "edit";
-  pot?: PotFactory;
+  pot?: IPot;
 }>();
+
+console.log(props.pot);
 
 const addEditModalContent = computed(() => ({
   title: props.formType === "add" ? "Add New Pot" : "Edit Pot",
@@ -22,11 +25,35 @@ const addEditModalContent = computed(() => ({
 }));
 
 const potFormFields = computed(() => ({
+  id: props.pot ? props.pot.id : undefined,
   name: props.pot ? props.pot.name : "",
   target: props.pot ? props.pot.target : 0,
-  total: props.pot ? props.pot.total : "",
+  total: props.pot ? props.pot.total : 0,
   theme: props.pot ? props.pot.theme : "green",
 }));
+
+const handleSubmit = async (e: Event) => {
+  e.preventDefault();
+
+  console.log(potFormFields.value);
+
+  await fetch(
+    `http://localhost:3333/pots${potFormFields.value.id ? "/" + potFormFields.value.id : ""}`,
+    {
+      method: props.formType === "add" ? "POST" : "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(potFormFields.value),
+    },
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      emits("updateUI");
+      emits("closeModal");
+    })
+    .catch((err) => console.log(err));
+};
 </script>
 
 <template>
@@ -41,18 +68,7 @@ const potFormFields = computed(() => ({
       action=""
       :method="addEditModalContent.formMethod"
       class="flex flex-col gap-4"
-      v-on:submit="
-        (e) => {
-          e.preventDefault();
-          console.log(addEditModalContent.formMethod);
-          const newPot = {
-            potName: potFormFields.name,
-            target: potFormFields.target,
-            theme: potFormFields.theme,
-          };
-          console.log(newPot);
-        }
-      "
+      v-on:submit="handleSubmit"
     >
       <label for="potName" class="flex flex-col gap-1">
         Pot name

@@ -3,13 +3,15 @@ import { computed, ref } from "vue";
 import { roundNumberToTwoDecinals, formatCurrency } from "../../utils/utils";
 import ModalLayout from "./ModalLayout.vue";
 import type { PotFactory } from "../../factories/PotFactory";
+import type { IPot, Pot } from "../../models/Pot";
 const emits = defineEmits<{
   (e: "closeModal"): void;
+  (e: "updateUI"): void;
 }>();
 
 const props = defineProps<{
   formType: "add" | "withdraw";
-  pot?: PotFactory;
+  pot?: IPot;
 }>();
 
 const variableAmount = ref(0);
@@ -54,6 +56,35 @@ const newTotalAmount = computed(() => {
 
   return props.formType === "add" ? potTotal + varAmount : potTotal - varAmount;
 });
+
+const handleSubmit = async (e: Event) => {
+  e.preventDefault();
+  const potTotal = props.pot ? props.pot.total : 0;
+  const potId = props.pot ? props.pot.id : null;
+
+  if (!potId) {
+    return;
+  }
+
+  const newTotal =
+    props.formType === "add"
+      ? potTotal + variableAmount.value
+      : potTotal - variableAmount.value;
+
+  await fetch(`http://localhost:3333/pots/${potId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ total: newTotal }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      emits("updateUI");
+      emits("closeModal");
+    })
+    .catch((err) => console.log(err));
+};
 </script>
 
 <template>
@@ -100,7 +131,13 @@ const newTotalAmount = computed(() => {
         </dl>
       </div>
     </section>
-    <form :id="formType + 'form'" class="mt-5" action="">
+    <form
+      :id="formType + 'form'"
+      class="mt-5"
+      method="GET"
+      v-on:submit="handleSubmit"
+      action="/pots"
+    >
       <label for="amountToAdd" class="flex flex-col gap-1">
         Amount to {{ formType }}
         <input

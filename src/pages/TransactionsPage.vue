@@ -164,10 +164,20 @@ const filterTransaction = <T extends TransactionFactory>(
   return transactionsArray;
 };
 
-fetch("/data/data.json")
+// fetch("/data/data.json")
+//   .then((res) => res.json())
+//   .then((data) => {
+//     const transactions = data.transactions as TransactionAPI[];
+//     transactionsData.value = transactions.map(
+//       (transaction) => new TransactionFactory(transaction, "json"),
+//     );
+//   })
+//   .catch((err) => console.log(err));
+
+fetch("http://localhost:3333/transactions")
   .then((res) => res.json())
   .then((data) => {
-    const transactions = data.transactions as TransactionAPI[];
+    const transactions = data.results as TransactionAPI[];
     transactionsData.value = transactions.map(
       (transaction) => new TransactionFactory(transaction, "json"),
     );

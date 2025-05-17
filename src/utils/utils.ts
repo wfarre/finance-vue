@@ -6,8 +6,18 @@ export const formatMoneyAmount = (amount: number): string => {
   return "+$" + stringAmount;
 };
 
-export const formatDate = (date: string): string => {
+export const formatDate = (date: string, isTime: boolean = false): string => {
   const getDate = new Date(date);
+  if (isTime) {
+    return getDate.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
   return getDate.toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
