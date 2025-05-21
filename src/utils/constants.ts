@@ -8,4 +8,14 @@ export const kColors = {
   turquoise: "bg-tertiary-turquoise",
 };
 
+export const kColorsHEX = {
+  green: "#277c78",
+  yellow: "#f2cdac",
+  cyan: "#82c9d7",
+  navy: "#626070",
+  red: "#c94736",
+  purple: "#826cb0",
+  turquoise: "#597c7c",
+};
+
 // const themes = (theme: string) => kColors[theme as keyof object] || "";

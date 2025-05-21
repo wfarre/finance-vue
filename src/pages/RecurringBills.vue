@@ -5,27 +5,27 @@ import SortSelect from "../components/ui/FilterSelect.vue";
 import { computed, ref } from "vue";
 import SearchBar from "../components/ui/SearchBar.vue";
 import { useFetch } from "../utils/hooks/useFetch";
-import { TransactionAPI } from "../utils/typeTransaction";
+import type { TransactionAPI } from "../utils/typeTransaction";
 import { Transaction } from "../models/Transaction";
 import { TransactionFactory } from "../factories/TransactionFactory";
 
 const sortBy = ref("latest");
 const search = ref("");
-const data = ref<TransactionFactory[]>([]);
+const transactionData = ref<TransactionFactory[]>([]);
 
-fetch("/data/data.json")
-  .then((res) => res.json())
-  .then((json) => {
-    const transactions = json.transactions as TransactionAPI[];
-    data.value = transactions.map(
-      (transaction) => new TransactionFactory(transaction, "json"),
-    );
-  })
-  .catch((err) => console.log(err));
+// fetch("/data/data.json")
+//   .then((res) => res.json())
+//   .then((json) => {
+//     const transactions = json.transactions as TransactionAPI[];
+//     data.value = transactions.map(
+//       (transaction) => new TransactionFactory(transaction, "json"),
+//     );
+//   })
+//   .catch((err) => console.log(err));
 
-// const { data, error, isLoading, refetch } = useFetch<TransactionAPI[]>(
-//   "http://localhost:3333/transactions",
-// );
+const { data, error, isLoading, refetch } = useFetch<TransactionAPI[]>(
+  "http://localhost:3333/transactions",
+);
 
 // refetch();
 
