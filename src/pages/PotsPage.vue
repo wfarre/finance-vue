@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import PotCard from "../components/ui/cards/PotCard.vue";
 import { computed } from "@vue/reactivity";
 import PageHeader from "../components/layout/PageHeader.vue";
 import { PotFactory } from "../factories/PotFactory";
 import type { PotAPI } from "../utils/typePot";
-import SavingsEditFormModal from "../components/layout/SavingsEditFormModal.vue";
-import AddEditPotModal from "../components/layout/AddEditPotModal.vue";
-import type { IPot, Pot } from "../models/Pot";
+import SavingsEditFormModal from "../components/views/SavingsEditFormModal.vue";
+import AddEditPotModal from "../components/views/AddEditPotModal.vue";
+import type { IPot } from "../models/Pot";
 import { useFetch } from "../utils/hooks/useFetch";
-import DeleteModal from "../components/layout/DeleteModal.vue";
+import DeleteModal from "../components/views/DeleteModal.vue";
 
 const { data, error, isLoading, refetch } = useFetch<PotAPI[]>(
   "http://localhost:3333/pots",
@@ -69,6 +69,7 @@ const currentPot = computed(() => {
       :pot-id="currentId"
     />
 
+    <p v-if="error">Oops! Something went wrong...</p>
     <section>
       <ul class="flex flex-col flex-wrap gap-y-6 lg:flex-row">
         <li class="group basis-1/2" v-if="potsData" v-for="pot of potsData">

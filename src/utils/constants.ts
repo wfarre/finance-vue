@@ -18,4 +18,4 @@ export const kColorsHEX = {
   turquoise: "#597c7c",
 };
 
-// const themes = (theme: string) => kColors[theme as keyof object] || "";
+export const dueDate = new Date("July, 30, 2024");

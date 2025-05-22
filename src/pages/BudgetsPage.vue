@@ -1,33 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import PageHeader from "../components/layout/PageHeader.vue";
-import BudgetChart from "../components/ui/BudgetChart.vue";
 import { TransactionFactory } from "../factories/TransactionFactory";
 import BudgetCard from "../components/ui/cards/BudgetCard.vue";
-import AddEditPotModal from "../components/layout/AddEditPotModal.vue";
-import AddEditModal from "../components/layout/AddEditModal.vue";
+import AddEditModal from "../components/views/AddEditModal.vue";
 import { BudgetFactory } from "../factories/BudgetFactory";
-import type { Budget } from "../models/Budget";
-import DeleteModal from "../components/layout/DeleteModal.vue";
-import { apiUrl, deleteItem } from "../utils/actions";
-import DeleteModalCopy from "../components/layout/DeleteModalCopy.vue";
-import ResultModal from "../components/layout/ResultModal.vue";
+import { apiUrl } from "../utils/actions";
+import DeleteModalCopy from "../components/views/DeleteModalCopy.vue";
+import ResultModal from "../components/views/ResultModal.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { BudgetAPI } from "../utils/typeBudget";
 import type { TransactionAPI } from "../utils/typeTransaction";
-import { formatMoneyAmount } from "../utils/utils";
-
-const { data, error, isLoading, refetch } = useFetch<BudgetAPI[]>(
-  `${apiUrl}/budgets`,
-);
-const transactionFetcher = useFetch<TransactionAPI[]>(`${apiUrl}/transactions`);
-
-const budgetsData = computed(() =>
-  data.value?.map((b) => BudgetFactory.create(b, "json")),
-);
-
-refetch();
-transactionFetcher.refetch();
+import BudgetChart from "../components/ui/BudgetChart.vue";
 
 const isSuccessful = ref(false);
 const currentId = ref<null | number>(null);
@@ -35,16 +19,23 @@ const status = ref<null | "add" | "edit" | "delete">(null);
 const isResultModalOpen = ref(false);
 const isModalOpen = ref(false);
 
-const currentBudget = computed(() => {
-  console.log(currentId);
+const budgetFetcher = useFetch<BudgetAPI[]>(`${apiUrl}/budgets`);
+const transactionFetcher = useFetch<TransactionAPI[]>(`${apiUrl}/transactions`);
 
-  return currentId.value !== null
-    ? budgetsData.value?.find((b) => b.id === currentId.value)
-    : undefined;
-});
+budgetFetcher.refetch();
+transactionFetcher.refetch();
 
+const budgetsData = computed(() =>
+  budgetFetcher.data.value?.map((b) => BudgetFactory.create(b, "json")),
+);
 const formattedTransactions = computed(() =>
   transactionFetcher.data.value?.map((t) => new TransactionFactory(t, "json")),
+);
+
+const currentBudget = computed(() =>
+  currentId.value !== null
+    ? budgetsData.value?.find((b) => b.id === currentId.value)
+    : undefined,
 );
 
 const handleCloseModalReset = () => {
@@ -102,6 +93,10 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
         }
       "
     />
+    <p v-if="budgetFetcher.error || transactionFetcher.error">
+      Oops! Something went wrong...
+    </p>
+
     <div class="flex flex-col lg:flex-row">
       <div class="mb-8 lg:pr-3">
         <BudgetChart

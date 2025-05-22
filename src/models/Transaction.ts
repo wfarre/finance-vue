@@ -1,5 +1,10 @@
 import type { TransactionAPI } from "../utils/typeTransaction";
-import { formatDate, formatMoneyAmount } from "../utils/utils";
+import {
+  checkIfTransactionDueSoon,
+  formatDate,
+  formatMoneyAmount,
+  getRemainingDaysBeforeDueDate,
+} from "../utils/utils";
 
 export class Transaction {
   private _avatar: string;
@@ -47,5 +52,20 @@ export class Transaction {
   }
   public get recurring() {
     return this._recurring;
+  }
+
+  public get isDueSoon() {
+    return checkIfTransactionDueSoon(this._date);
+  }
+
+  public get isDueSoonIcon() {
+    switch (this.isDueSoon) {
+      case "dueSoon":
+        return "/images/icon-bill-due.svg";
+      case "paid":
+        return "/images/icon-bill-paid.svg";
+      default:
+        return "";
+    }
   }
 }

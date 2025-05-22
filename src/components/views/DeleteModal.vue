@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ModalLayout from "./ModalLayout.vue";
+import ModalLayout from "../layout/ModalLayout.vue";
 const props = defineProps<{ potId: number }>();
 const emits = defineEmits<{
   (e: "closeModal"): void;
@@ -9,8 +9,6 @@ const emits = defineEmits<{
 
 const handleSubmit = async (e: Event) => {
   e.preventDefault();
-  console.log("poiet");
-
   await fetch(`http://localhost:3333/pots/${props.potId}`, {
     method: "DELETE",
     headers: {
@@ -18,7 +16,7 @@ const handleSubmit = async (e: Event) => {
     },
   })
     .then((res) => res.json())
-    .then((data) => {
+    .then(() => {
       emits("updateUI");
       emits("closeModal");
     })

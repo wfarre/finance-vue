@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { roundNumberToTwoDecinals, formatCurrency } from "../../utils/utils";
-import ModalLayout from "./ModalLayout.vue";
-import type { PotFactory } from "../../factories/PotFactory";
-import type { IPot, Pot } from "../../models/Pot";
+import ModalLayout from "../layout/ModalLayout.vue";
+import type { IPot } from "../../models/Pot";
 const emits = defineEmits<{
   (e: "closeModal"): void;
   (e: "updateUI"): void;
@@ -79,7 +78,7 @@ const handleSubmit = async (e: Event) => {
     body: JSON.stringify({ total: newTotal }),
   })
     .then((res) => res.json())
-    .then((data) => {
+    .then(() => {
       emits("updateUI");
       emits("closeModal");
     })

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import ModalLayout from "./ModalLayout.vue";
-import Select from "../ui/Select.vue";
-import { kColors, kColorsHEX } from "../../utils/constants";
-import type { IPot } from "../../models/Pot";
+import ModalLayout from "../layout/ModalLayout.vue";
+import { kColorsHEX } from "../../utils/constants";
 import type { IBudget } from "../../models/Budget";
-import SelectCopy from "../ui/SelectCopy.vue";
+import Select from "../ui/Select.vue";
 const emits = defineEmits<{
   (e: "closeModal"): void;
   (e: "updateUI"): void;
@@ -44,7 +42,7 @@ const handleSubmit = async (e: Event) => {
     body: JSON.stringify(itemToEditFormFields.value),
   })
     .then((res) => res.json())
-    .then((data) => {
+    .then(() => {
       emits("updateUI");
       emits("closeModal");
     })
@@ -94,10 +92,10 @@ const handleSubmit = async (e: Event) => {
           class="border-grey-900 h-11 rounded-lg border px-5 text-sm"
         />
       </label>
-      <SelectCopy
+      <Select
         :options="kColorsHEX"
         v-model="itemToEditFormFields.theme"
-      ></SelectCopy>
+      ></Select>
     </form>
   </ModalLayout>
 </template>

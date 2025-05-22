@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deleteItem } from "../../utils/actions";
-import ModalLayout from "./ModalLayout.vue";
+import ModalLayout from "../layout/ModalLayout.vue";
 const props = defineProps<{ id: number; name: string; path: string }>();
 const emits = defineEmits<{
   (e: "closeModal"): void;

@@ -1,7 +1,9 @@
 <template>
   <PageHeader title="Transactions" />
   <main>
-    <section class="rounded-2xl bg-white">
+    <p v-if="transactionFetch.error">Oops! Something went wrong...</p>
+
+    <section v-else class="rounded-2xl bg-white">
       <header class="flex gap-6 px-8 pt-8">
         <SearchBar v-model="searchBy" />
         <SortSelect v-model="sortByFilter" />
@@ -79,18 +81,20 @@
 import { computed, ref, watch } from "vue";
 import { TransactionFactory } from "../factories/TransactionFactory";
 import type { TransactionAPI } from "../utils/typeTransaction";
-import Pagination from "../components/ui/Pagination.vue";
+import Pagination from "../components/layout/Pagination.vue";
 import PageHeader from "../components/layout/PageHeader.vue";
 import SearchBar from "../components/ui/SearchBar.vue";
 import SortSelect from "../components/ui/FilterSelect.vue";
+import { filterByCategory, filterBySearch, sortBy } from "../utils/utils";
+import { useFetch } from "../utils/hooks/useFetch";
 
 const currentPage = ref(1);
 const resultPerPage = 10;
 const categoryFilter = ref("all");
-const sortByFilter = ref("latest");
+const sortByFilter = ref("oldest");
 const searchBy = ref("");
 const filteredTransaction = ref<TransactionFactory[]>([]);
-const transactionsData = ref<TransactionFactory[]>([]);
+// const transactionsData = ref<TransactionFactory[]>([]);
 
 const categoryOptions = [
   "All",
@@ -101,55 +105,6 @@ const categoryOptions = [
   "Transportation",
   "Personal Care",
 ];
-
-const filterBySearch = <T extends TransactionFactory>(
-  array: T[],
-  searchInput: string,
-): T[] =>
-  searchInput.length > 0
-    ? array.filter((item) =>
-        item.name.toLowerCase().includes(searchInput.toLowerCase()),
-      )
-    : array;
-const filterByCategory = <T extends TransactionFactory>(
-  array: T[],
-  category: string,
-): T[] =>
-  category === "all"
-    ? array
-    : array.filter(
-        (item) => item.category.toLowerCase() === category.toLowerCase(),
-      );
-const sortBy = <T extends TransactionFactory>(
-  array: T[],
-  sortFilter: string,
-): T[] => {
-  switch (sortFilter.toLowerCase()) {
-    case "latest":
-    case "oldest":
-      return array.sort((a, b) => {
-        const dateA = Date.parse(a.date);
-        const dateB = Date.parse(b.date);
-        return sortFilter.toLowerCase() === "oldest"
-          ? dateA - dateB
-          : dateB - dateA;
-      });
-    case "highest":
-      return array.sort((a, b) => b.amount - a.amount);
-    case "lowest":
-      return array.sort((a, b) => a.amount - b.amount);
-    case "az":
-      return array.sort((a, b) => a.name.localeCompare(b.name));
-    case "za":
-      return array.sort((a, b) => b.name.localeCompare(a.name));
-    default:
-      return array.sort((a, b) => {
-        const dateA = Date.parse(a.date);
-        const dateB = Date.parse(b.date);
-        return dateB - dateA;
-      });
-  }
-};
 
 const filterTransaction = <T extends TransactionFactory>(
   array: T[],
@@ -174,15 +129,25 @@ const filterTransaction = <T extends TransactionFactory>(
 //   })
 //   .catch((err) => console.log(err));
 
-fetch("http://localhost:3333/transactions")
-  .then((res) => res.json())
-  .then((data) => {
-    const transactions = data.results as TransactionAPI[];
-    transactionsData.value = transactions.map(
-      (transaction) => new TransactionFactory(transaction, "json"),
-    );
-  })
-  .catch((err) => console.log(err));
+const transactionFetch = useFetch<TransactionAPI[]>(
+  "http://localhost:3333/transactions",
+);
+transactionFetch.refetch();
+const transactionsData = computed(() =>
+  transactionFetch.data.value?.map(
+    (transaction) => new TransactionFactory(transaction, "json"),
+  ),
+);
+
+// fetch("http://localhost:3333/transactions")
+//   .then((res) => res.json())
+//   .then((data) => {
+//     const transactions = data.results as TransactionAPI[];
+//     transactionsData.value = transactions.map(
+//       (transaction) => new TransactionFactory(transaction, "json"),
+//     );
+//   })
+//   .catch((err) => console.log(err));
 
 watch([transactionsData, sortByFilter, categoryFilter, searchBy], () => {
   filteredTransaction.value = filterTransaction(

@@ -1,49 +1,85 @@
 <script setup lang="ts">
 import PageHeader from "../components/layout/PageHeader.vue";
-import { formatCurrency } from "../utils/utils";
+import {
+  filterBySearch,
+  formatCurrency,
+  removeDoublon,
+  sortBy,
+} from "../utils/utils";
 import SortSelect from "../components/ui/FilterSelect.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import SearchBar from "../components/ui/SearchBar.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { TransactionAPI } from "../utils/typeTransaction";
 import { Transaction } from "../models/Transaction";
 import { TransactionFactory } from "../factories/TransactionFactory";
 
-const sortBy = ref("latest");
+const sortFilter = ref("oldest");
 const search = ref("");
-const transactionData = ref<TransactionFactory[]>([]);
-
-// fetch("/data/data.json")
-//   .then((res) => res.json())
-//   .then((json) => {
-//     const transactions = json.transactions as TransactionAPI[];
-//     data.value = transactions.map(
-//       (transaction) => new TransactionFactory(transaction, "json"),
-//     );
-//   })
-//   .catch((err) => console.log(err));
+const summaryContent = ref({
+  paid: { quantity: 0, total: 0 },
+  due: { quantity: 0, total: 0 },
+  upcomming: { quantity: 0, total: 0 },
+});
 
 const { data, error, isLoading, refetch } = useFetch<TransactionAPI[]>(
   "http://localhost:3333/transactions",
 );
 
-// refetch();
-
 const recurringTransactions = computed(() => {
-  return data.value
+  const transactions = data.value
     ?.filter((transaction) => transaction.recurring)
     .map((t) => new TransactionFactory(t, "json"));
+
+  return transactions && removeDoublon(transactions);
 });
 
-console.log(recurringTransactions.value);
+const displayedTransactions = computed(() => {
+  return filterTransaction(
+    recurringTransactions.value ? recurringTransactions.value : [],
+    sortFilter.value,
+    search.value,
+  );
+});
+
+const filterTransaction = <T extends Transaction>(
+  array: T[],
+  sortFilter: string,
+  searchBy: string,
+): T[] => {
+  let transactionsArray = array;
+  transactionsArray = sortBy(transactionsArray, sortFilter);
+  transactionsArray = filterBySearch(transactionsArray, searchBy);
+  return transactionsArray;
+};
+
+watch(recurringTransactions, () => {
+  recurringTransactions.value?.forEach((t) => {
+    switch (t.isDueSoon) {
+      case "dueSoon":
+        summaryContent.value.due.quantity++;
+        summaryContent.value.due.total += t.amount;
+        break;
+      case "paid":
+        summaryContent.value.paid.quantity++;
+        summaryContent.value.paid.total += t.amount;
+        break;
+      default:
+        summaryContent.value.upcomming.quantity++;
+        summaryContent.value.upcomming.total += t.amount;
+        break;
+    }
+  });
+});
 </script>
 
 <template>
   <PageHeader title="Recurring Bills" />
 
   <main>
-    <div class="flex">
-      <section class="mr-3 flex-1/3">
+    <p v-if="error">Oops! Something went wrong...</p>
+    <div v-else class="flex flex-col lg:flex-row">
+      <section class="mb-8 flex-1/3 lg:mr-3">
         <article class="bg-grey-900 rounded-xl p-6 text-white">
           <img src="/images/icon-recurring-bills.svg" alt="" />
           <dl class="mt-8 flex flex-col gap-3">
@@ -59,20 +95,30 @@ console.log(recurringTransactions.value);
             <li>
               <dl class="flex justify-between">
                 <dt class="text-xs">Paid Bills</dt>
-                <dd class="text-xs font-bold">4 ({{ formatCurrency(190) }})</dd>
+                <dd class="text-xs font-bold">
+                  {{ summaryContent.paid.quantity }} ({{
+                    formatCurrency(summaryContent.paid.total)
+                  }})
+                </dd>
               </dl>
             </li>
             <li>
               <dl class="flex justify-between">
                 <dt class="text-xs">Total Upcoming</dt>
-                <dd class="text-xs font-bold">4 ({{ formatCurrency(190) }})</dd>
+                <dd class="text-xs font-bold">
+                  {{ summaryContent.upcomming.quantity }} ({{
+                    formatCurrency(summaryContent.upcomming.total)
+                  }})
+                </dd>
               </dl>
             </li>
             <li>
               <dl class="flex justify-between">
                 <dt class="text-secondary-red text-xs">Due Soon</dt>
                 <dd class="text-secondary-red text-xs font-bold">
-                  4 ({{ formatCurrency(190) }})
+                  {{ summaryContent.due.quantity }} ({{
+                    formatCurrency(summaryContent.due.total)
+                  }})
                 </dd>
               </dl>
             </li>
@@ -83,7 +129,7 @@ console.log(recurringTransactions.value);
       <section class="flex-2/3 rounded-xl bg-white p-8 lg:ml-3">
         <header class="flex">
           <SearchBar v-model="search" />
-          <SortSelect v-model="sortBy" />
+          <SortSelect v-model="sortFilter" />
         </header>
         <table class="w-full border-separate border-spacing-6">
           <thead class="text-beige-500 text-left text-xs font-normal">
@@ -94,7 +140,7 @@ console.log(recurringTransactions.value);
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in recurringTransactions">
+            <tr v-for="transaction in displayedTransactions">
               <td class="flex items-center gap-4 text-sm font-bold">
                 <div class="relative h-8 w-8 overflow-hidden rounded-full">
                   <img
@@ -107,8 +153,15 @@ console.log(recurringTransactions.value);
                 </div>
                 {{ transaction.name }}
               </td>
-              <td class="text-secondary-green text-xs">
-                {{ transaction.formattedDateTime }}
+              <td class="text-secondary-green relative items-center text-xs">
+                <div class="flex gap-2">
+                  <p>{{ transaction.formattedDateTime }}</p>
+                  <img
+                    v-if="transaction.isDueSoonIcon"
+                    :src="transaction.isDueSoonIcon"
+                    alt=""
+                  />
+                </div>
               </td>
               <td>{{ formatCurrency(transaction.amount) }}</td>
             </tr>

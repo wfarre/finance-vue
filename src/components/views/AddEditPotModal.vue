@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import ModalLayout from "./ModalLayout.vue";
+import ModalLayout from "../layout/ModalLayout.vue";
 import Select from "../ui/Select.vue";
 import { kColors } from "../../utils/constants";
-import type { IPot, Pot } from "../../models/Pot";
+import type { IPot } from "../../models/Pot";
 const emits = defineEmits<{
   (e: "closeModal"): void;
   (e: "updateUI"): void;
@@ -12,8 +12,6 @@ const props = defineProps<{
   formType: "add" | "edit";
   pot?: IPot;
 }>();
-
-console.log(props.pot);
 
 const addEditModalContent = computed(() => ({
   title: props.formType === "add" ? "Add New Pot" : "Edit Pot",
@@ -48,7 +46,7 @@ const handleSubmit = async (e: Event) => {
     },
   )
     .then((res) => res.json())
-    .then((data) => {
+    .then(() => {
       emits("updateUI");
       emits("closeModal");
     })
@@ -101,7 +99,7 @@ const handleSubmit = async (e: Event) => {
       <Select
         :options="kColors"
         :value="potFormFields.theme"
-        @select="(newValue) => (potFormFields.theme = newValue)"
+        v-model="potFormFields.theme"
       ></Select>
     </form>
   </ModalLayout>

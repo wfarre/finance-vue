@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Icon from "../Icon.vue";
 import Button from "../ui/Button.vue";
 
 defineProps<{
