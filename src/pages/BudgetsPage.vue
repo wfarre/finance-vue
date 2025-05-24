@@ -93,7 +93,7 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
         }
       "
     />
-    <p v-if="budgetFetcher.error || transactionFetcher.error">
+    <p v-if="budgetFetcher.error.value || transactionFetcher.error.value">
       Oops! Something went wrong...
     </p>
 

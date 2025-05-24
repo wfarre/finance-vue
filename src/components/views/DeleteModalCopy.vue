@@ -14,6 +14,7 @@ const handleSubmit = async (e: Event) => {
   try {
     await deleteItem(props.path, props.id);
     emits("isSuccessful", true);
+    emits("updateUI");
   } catch (err) {
     emits("isSuccessful", false);
   }

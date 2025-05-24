@@ -9,7 +9,8 @@ import SavingsEditFormModal from "../components/views/SavingsEditFormModal.vue";
 import AddEditPotModal from "../components/views/AddEditPotModal.vue";
 import type { IPot } from "../models/Pot";
 import { useFetch } from "../utils/hooks/useFetch";
-import DeleteModal from "../components/views/DeleteModal.vue";
+import DeleteModalCopy from "../components/views/DeleteModalCopy.vue";
+import ResultModal from "../components/views/ResultModal.vue";
 
 const { data, error, isLoading, refetch } = useFetch<PotAPI[]>(
   "http://localhost:3333/pots",
@@ -23,10 +24,11 @@ const potsData = computed(() =>
 
 const isSavingsModalOpen = ref(false);
 const isModalOpen = ref(false);
-const modalStatus = ref<"edit" | "add">("add");
+const modalStatus = ref<"edit" | "add" | "delete">("add");
 const savingsModalStatus = ref<"add" | "withdraw">("add");
 const currentId = ref<number | null>(null);
-const isDeleteModalOpen = ref(false);
+const isSuccessful = ref(false);
+const isResultModalOpen = ref(false);
 
 const currentPot = computed(() => {
   return (
@@ -34,6 +36,18 @@ const currentPot = computed(() => {
     (undefined as IPot | undefined)
   );
 });
+
+const handleCloseModalReset = () => {
+  isModalOpen.value = false;
+  isResultModalOpen.value = false;
+  currentId.value = null;
+};
+
+const handleFormResult = (isSubmitSuccessful: boolean) => {
+  isModalOpen.value = false;
+  isResultModalOpen.value = true;
+  isSuccessful.value = isSubmitSuccessful;
+};
 </script>
 
 <template>
@@ -56,17 +70,33 @@ const currentPot = computed(() => {
       :form-type="savingsModalStatus"
     />
     <AddEditPotModal
-      v-if="isModalOpen"
+      v-if="isModalOpen && (modalStatus === 'add' || modalStatus === 'edit')"
       @close-modal="() => (isModalOpen = false)"
       @update-u-i="() => refetch()"
       :pot="currentPot"
       :form-type="modalStatus"
     />
-    <DeleteModal
-      v-if="isDeleteModalOpen && currentId"
-      @close-modal="() => (isDeleteModalOpen = false)"
+
+    <ResultModal
+      v-if="isResultModalOpen"
+      :is-successful="isSuccessful"
+      @close-modal="handleCloseModalReset"
+      @try-again="
+        () => {
+          isModalOpen = true;
+          isResultModalOpen = false;
+        }
+      "
+    />
+
+    <DeleteModalCopy
+      v-if="currentPot && isModalOpen && modalStatus === 'delete'"
+      :id="currentPot.id"
+      :name="currentPot.name"
+      path="/pots"
+      @close-modal="handleCloseModalReset"
+      @is-successful="handleFormResult"
       @update-u-i="() => refetch()"
-      :pot-id="currentId"
     />
 
     <p v-if="error">Oops! Something went wrong...</p>
@@ -99,8 +129,9 @@ const currentPot = computed(() => {
             "
             @delete-pot="
               (potId) => {
-                isDeleteModalOpen = true;
+                isModalOpen = true;
                 currentId = potId;
+                modalStatus = 'delete';
               }
             "
           />

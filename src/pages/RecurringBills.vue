@@ -14,7 +14,7 @@ import type { TransactionAPI } from "../utils/typeTransaction";
 import { Transaction } from "../models/Transaction";
 import { TransactionFactory } from "../factories/TransactionFactory";
 
-const sortFilter = ref("oldest");
+const sortFilter = ref("Oldest");
 const search = ref("");
 const summaryContent = ref({
   paid: { quantity: 0, total: 0 },
@@ -63,6 +63,8 @@ watch(recurringTransactions, () => {
       case "paid":
         summaryContent.value.paid.quantity++;
         summaryContent.value.paid.total += t.amount;
+        summaryContent.value.upcomming.quantity++;
+        summaryContent.value.upcomming.total += t.amount;
         break;
       default:
         summaryContent.value.upcomming.quantity++;
@@ -84,7 +86,13 @@ watch(recurringTransactions, () => {
           <img src="/images/icon-recurring-bills.svg" alt="" />
           <dl class="mt-8 flex flex-col gap-3">
             <dt class="text-sm">Total Bills</dt>
-            <dd class="text-[32px] font-bold">{{ formatCurrency(384) }}</dd>
+            <dd class="text-[32px] font-bold">
+              {{
+                formatCurrency(
+                  summaryContent.upcomming.total + summaryContent.paid.total,
+                )
+              }}
+            </dd>
           </dl>
         </article>
         <article class="mt-6 rounded-xl bg-white p-6">
@@ -127,9 +135,13 @@ watch(recurringTransactions, () => {
       </section>
 
       <section class="flex-2/3 rounded-xl bg-white p-8 lg:ml-3">
-        <header class="flex">
+        <header class="flex justify-between">
           <SearchBar v-model="search" />
-          <SortSelect v-model="sortFilter" />
+          <SortSelect
+            v-model="sortFilter"
+            label="Sort by"
+            mobileIcon="/images/icon-sort-mobile.svg"
+          />
         </header>
         <table class="w-full border-separate border-spacing-6">
           <thead class="text-beige-500 text-left text-xs font-normal">
@@ -153,7 +165,14 @@ watch(recurringTransactions, () => {
                 </div>
                 {{ transaction.name }}
               </td>
-              <td class="text-secondary-green relative items-center text-xs">
+              <td
+                :class="
+                  transaction.isDueSoon === 'paid'
+                    ? 'text-secondary-green'
+                    : 'text-grey-500'
+                "
+                class="relative items-center text-xs"
+              >
                 <div class="flex gap-2">
                   <p>{{ transaction.formattedDateTime }}</p>
                   <img
@@ -163,7 +182,16 @@ watch(recurringTransactions, () => {
                   />
                 </div>
               </td>
-              <td>{{ formatCurrency(transaction.amount) }}</td>
+              <td
+                :class="
+                  transaction.isDueSoon === 'dueSoon'
+                    ? 'text-secondary-red'
+                    : 'text-grey-900'
+                "
+                class="text-sm"
+              >
+                {{ formatCurrency(transaction.amount) }}
+              </td>
             </tr>
           </tbody>
         </table>

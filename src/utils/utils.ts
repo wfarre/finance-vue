@@ -33,13 +33,17 @@ export const formatDate = (date: string, isTime: boolean = false): string => {
 export const roundNumberToTwoDecinals = (number: number) =>
   (Math.round(number * 100) / 100).toFixed(2);
 
-export const formatCurrency = (number: number, isDecimal: boolean = true) =>
+export const formatCurrency = (
+  number: number,
+  isDecimal: boolean = true,
+  isAbsolute: boolean = true,
+) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: !isDecimal ? 0 : 2,
     minimumFractionDigits: !isDecimal ? 0 : 2,
-  }).format(number);
+  }).format(isAbsolute ? Math.abs(number) : number);
 
 export const getRemainingDaysBeforeDueDate = (date: string) => {
   const formattedDate = new Date(date);
@@ -59,10 +63,11 @@ export const sortBy = <T extends Transaction>(
   array: T[],
   sortFilter: string,
 ): T[] => {
+  const arr = [...array];
   switch (sortFilter.toLowerCase()) {
     case "latest":
     case "oldest":
-      return array.sort((a, b) => {
+      return arr.sort((a, b) => {
         const dateA = Date.parse(a.date);
         const dateB = Date.parse(b.date);
         return sortFilter.toLowerCase() === "oldest"
@@ -70,15 +75,15 @@ export const sortBy = <T extends Transaction>(
           : dateB - dateA;
       });
     case "highest":
-      return array.sort((a, b) => b.amount - a.amount);
+      return arr.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
     case "lowest":
-      return array.sort((a, b) => a.amount - b.amount);
+      return arr.sort((a, b) => Math.abs(a.amount) - Math.abs(b.amount));
     case "a to z":
-      return array.sort((a, b) => a.name.localeCompare(b.name));
+      return arr.sort((a, b) => a.name.localeCompare(b.name));
     case "z to a":
-      return array.sort((a, b) => b.name.localeCompare(a.name));
+      return arr.sort((a, b) => b.name.localeCompare(a.name));
     default:
-      return array.sort((a, b) => {
+      return arr.sort((a, b) => {
         const dateA = Date.parse(a.date);
         const dateB = Date.parse(b.date);
         return dateB - dateA;
@@ -110,7 +115,7 @@ export const filterByCategory = <T extends TransactionFactory>(
   array: T[],
   category: string,
 ): T[] =>
-  category === "all"
+  category.toLowerCase() === "all"
     ? array
     : array.filter(
         (item) => item.category.toLowerCase() === category.toLowerCase(),
