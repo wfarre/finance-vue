@@ -6,11 +6,11 @@ import PageHeader from "../components/layout/PageHeader.vue";
 import { PotFactory } from "../factories/PotFactory";
 import type { PotAPI } from "../utils/typePot";
 import SavingsEditFormModal from "../components/views/SavingsEditFormModal.vue";
-import AddEditPotModal from "../components/views/AddEditPotModal.vue";
 import type { IPot } from "../models/Pot";
 import { useFetch } from "../utils/hooks/useFetch";
 import DeleteModalCopy from "../components/views/DeleteModalCopy.vue";
 import ResultModal from "../components/views/ResultModal.vue";
+import AddEditModalCopy from "../components/views/AddEditModalCopy.vue";
 
 const { data, error, isLoading, refetch } = useFetch<PotAPI[]>(
   "http://localhost:3333/pots",
@@ -69,16 +69,26 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
       :pot="currentPot"
       :form-type="savingsModalStatus"
     />
-    <AddEditPotModal
+
+    <AddEditModalCopy
       v-if="isModalOpen && (modalStatus === 'add' || modalStatus === 'edit')"
       @close-modal="() => (isModalOpen = false)"
       @update-u-i="() => refetch()"
-      :pot="currentPot"
+      :name="currentPot?.name"
+      :amount="currentPot?.target"
+      :theme="currentPot?.theme"
+      :id="currentPot?.id"
       :form-type="modalStatus"
+      title="Pot"
+      subtitle="adsdad"
+      path="/pots"
+      item-type="pot"
     />
 
     <ResultModal
-      v-if="isResultModalOpen"
+      v-if="
+        isResultModalOpen && (modalStatus === 'add' || modalStatus === 'edit')
+      "
       :is-successful="isSuccessful"
       @close-modal="handleCloseModalReset"
       @try-again="

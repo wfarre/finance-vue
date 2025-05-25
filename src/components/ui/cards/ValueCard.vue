@@ -16,12 +16,12 @@ const textColor = computed(
 
 <template>
   <dl
-    class="flex flex-1/2 items-center gap-4 rounded-2xl p-6"
+    class="flex h-[110px] flex-1/2 items-center gap-x-4 rounded-2xl px-4 py-5"
     :class="[bgColor, textColor]"
   >
     <Icon v-if="icon" :iconUrl="icon" />
     <div class="">
-      <dt class="mb-3 text-sm">{{ label }}</dt>
+      <dt class="mb-[11px] text-sm">{{ label }}</dt>
       <dd class="text-[32px] font-bold">${{ value }}</dd>
     </div>
   </dl>

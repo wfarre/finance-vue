@@ -19,7 +19,7 @@ const amountColor = computed(
 </script>
 
 <template>
-  <article class="flex items-center gap-4">
+  <article class="flex h-[47px] items-center gap-4">
     <div class="relative h-10 w-10 overflow-hidden rounded-full">
       <img
         class="absolute top-0 left-0 h-full w-full"

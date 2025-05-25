@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { TransactionFactory } from "../factories/TransactionFactory";
 import type { TransactionAPI } from "../utils/typeTransaction";
 import Pagination from "../components/layout/Pagination.vue";

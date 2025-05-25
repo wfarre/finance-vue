@@ -14,7 +14,7 @@ const shownLinkText = computed(() =>
 
 <template>
   <article class="w-full rounded-2xl bg-white p-8">
-    <header class="mb-5 flex flex-1/2 justify-between">
+    <header class="mb-5 flex h-6 justify-between">
       <h2 class="text-xl font-bold">{{ headingText }}</h2>
       <RouterLink
         :to="detailsLink"

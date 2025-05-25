@@ -120,3 +120,6 @@ export const filterByCategory = <T extends TransactionFactory>(
     : array.filter(
         (item) => item.category.toLowerCase() === category.toLowerCase(),
       );
+
+export const getTotal = <T extends object>(array: T[], key: keyof T): number =>
+  array.reduce((acc, current) => (acc += +current[key]), 0);

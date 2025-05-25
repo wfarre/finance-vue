@@ -1,31 +1,27 @@
 <template>
   <section
-    class="flex flex-5/12 flex-col items-stretch gap-8 rounded-xl bg-white p-8 md:flex-row md:items-center lg:flex-col lg:items-stretch"
+    class="flex flex-5/12 flex-col items-center gap-8 rounded-xl bg-white py-8 md:flex-row md:items-center"
   >
-    <div class="relative flex-1/2 p-7">
-      <canvas ref="chartRef" class="w-60"></canvas>
+    <div class="relative h-60 w-60 max-w-60 flex-1/2">
+      <canvas ref="chartRef"></canvas>
       <div class="absolute top-1/2 left-1/2 translate-[-50%] text-center">
         <p class="text-[32px] font-bold">{{ formatCurrency(totalSpent) }}</p>
         <span class="text-grey-500 text-xs">of {{ limit }} limit</span>
       </div>
     </div>
     <div class="flex-1/2">
-      <h2 class="text-xl font-bold">Spending Summary</h2>
-      <ul class="mt-8 flex w-full flex-col gap-8">
+      <ul class="flex flex-wrap gap-y-4 lg:flex-col">
         <li
           v-for="budget in budgets"
-          class="relative flex items-baseline justify-between pl-4"
+          class="relative flex flex-1/2 flex-col items-baseline justify-between pl-4"
         >
           <div
             :style="`background-color: ${budget.theme}`"
             class="absolute top-0 left-0 h-full w-1"
           ></div>
-          <p class="text-grey-500 text-sm">{{ budget.category }}</p>
-          <p class="text-grey-900 text-base font-bold">
-            {{ formatMoneyAmount(spendingSummary[budget.category]) }}
-            <span class="text-grey-500 text-xs font-normal"
-              >of {{ budget.maximum }}$</span
-            >
+          <p class="text-grey-500 mb-1 text-xs">{{ budget.category }}</p>
+          <p class="text-grey-900 text-sm font-bold">
+            {{ formatCurrency(spendingSummary[budget.category]) }}
           </p>
         </li>
       </ul>

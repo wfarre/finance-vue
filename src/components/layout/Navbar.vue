@@ -46,7 +46,7 @@ const resizeMenuText = computed(() =>
     :class="
       isNavBarReduced ? 'lg:max-w-22 lg:min-w-22' : 'lg:max-w-75 lg:min-w-75'
     "
-    class="bg-grey-900 sticky bottom-0 left-0 z-50 flex h-13 w-full overflow-hidden rounded-t-xl px-10 pt-2 text-white transition-all duration-800 ease-out md:h-18.5 lg:top-0 lg:h-[100dvh] lg:flex-col lg:rounded-t-none lg:rounded-r-2xl lg:pt-10 lg:pr-6 lg:pb-25 lg:pl-0"
+    class="bg-grey-900 sticky bottom-0 left-0 z-50 flex h-13 w-full overflow-hidden rounded-t-xl px-4 pt-2 text-white transition-all duration-800 ease-out md:h-18.5 md:px-10 lg:top-0 lg:h-[100dvh] lg:flex-col lg:rounded-t-none lg:rounded-r-2xl lg:pt-10 lg:pr-6 lg:pb-25 lg:pl-0"
   >
     <div class="hidden lg:mb-16 lg:block lg:pl-8">
       <img
