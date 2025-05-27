@@ -8,9 +8,9 @@ import type { PotAPI } from "../utils/typePot";
 import SavingsEditFormModal from "../components/views/SavingsEditFormModal.vue";
 import type { IPot } from "../models/Pot";
 import { useFetch } from "../utils/hooks/useFetch";
-import DeleteModalCopy from "../components/views/DeleteModalCopy.vue";
+import DeleteModal from "../components/views/DeleteModal.vue";
 import ResultModal from "../components/views/ResultModal.vue";
-import AddEditModalCopy from "../components/views/AddEditModalCopy.vue";
+import AddEditModal from "../components/views/AddEditModal.vue";
 
 const { data, error, isLoading, refetch } = useFetch<PotAPI[]>(
   "http://localhost:3333/pots",
@@ -41,6 +41,7 @@ const handleCloseModalReset = () => {
   isModalOpen.value = false;
   isResultModalOpen.value = false;
   currentId.value = null;
+  isSavingsModalOpen.value = false;
 };
 
 const handleFormResult = (isSubmitSuccessful: boolean) => {
@@ -64,15 +65,15 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
   <main>
     <SavingsEditFormModal
       v-if="isSavingsModalOpen"
-      @close-modal="() => (isSavingsModalOpen = false)"
+      @close-modal="handleCloseModalReset"
       @update-u-i="() => refetch()"
       :pot="currentPot"
       :form-type="savingsModalStatus"
     />
 
-    <AddEditModalCopy
+    <AddEditModal
       v-if="isModalOpen && (modalStatus === 'add' || modalStatus === 'edit')"
-      @close-modal="() => (isModalOpen = false)"
+      @close-modal="handleCloseModalReset"
       @update-u-i="() => refetch()"
       :name="currentPot?.name"
       :amount="currentPot?.target"
@@ -99,14 +100,14 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
       "
     />
 
-    <DeleteModalCopy
+    <DeleteModal
       v-if="currentPot && isModalOpen && modalStatus === 'delete'"
       :id="currentPot.id"
       :name="currentPot.name"
       path="/pots"
       @close-modal="handleCloseModalReset"
       @is-successful="handleFormResult"
-      @update-u-i="() => refetch()"
+      @update-u-i="refetch"
     />
 
     <p v-if="error">Oops! Something went wrong...</p>

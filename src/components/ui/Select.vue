@@ -5,15 +5,16 @@ const props = defineProps<{
   options: { [name: string]: string };
 }>();
 const optionList = computed(() => Object.keys(props.options));
-const model = defineModel("green");
+const model = defineModel();
 </script>
 
 <template>
+  {{ model }}
   <label for="theme" class="flex flex-col gap-1">
     Theme
     <select
       class="select-base border-grey-900 h-11 rounded-2xl border px-5 text-sm"
-      :value="model"
+      v-model="model"
     >
       <button class="flex gap-4">
         <selectedcontent class="flex gap-4"></selectedcontent>

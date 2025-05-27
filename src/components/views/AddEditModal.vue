@@ -2,16 +2,19 @@
 import { computed, ref } from "vue";
 import ModalLayout from "../layout/ModalLayout.vue";
 import { kColorsHEX } from "../../utils/constants";
-import type { IBudget } from "../../models/Budget";
 import Select from "../ui/Select.vue";
+import { apiUrl } from "../../utils/actions";
 const emits = defineEmits<{
   (e: "closeModal"): void;
   (e: "updateUI"): void;
 }>();
 const props = defineProps<{
   formType: "add" | "edit";
-  itemToEdit?: IBudget;
-  itemType: string;
+  id?: number;
+  name?: string;
+  amount?: number;
+  theme?: string;
+  itemType: "pot" | "budget";
   subtitle: string;
   path: string;
 }>();
@@ -21,32 +24,62 @@ const title = computed(() =>
 );
 
 const itemToEditFormFields = ref({
-  id: props.itemToEdit?.id,
-  // name: props.itemToEdit?.name ?? "",
-  category: props.itemToEdit?.category ?? "",
-  // target: props.itemToEdit?.target ?? 0,
-  maximum: props.itemToEdit?.maximum ?? 0,
-  // total: props.itemToEdit?.total ?? 0,
-  theme: props.itemToEdit?.theme ?? "green",
+  id: props.id,
+  name: props.name ?? "",
+  amount: props.amount ?? 0,
+  theme: props.theme ?? Object.values(kColorsHEX)[0],
 });
 const handleSubmit = async (e: Event) => {
   e.preventDefault();
+  let formData;
 
   console.log(itemToEditFormFields.value);
+  switch (props.itemType) {
+    case "budget":
+      formData = {
+        category: itemToEditFormFields.value.name,
+        maximum: itemToEditFormFields.value.amount,
+        theme: itemToEditFormFields.value.theme,
+      };
+      console.log("nya");
 
-  await fetch(`http://localhost:3333/${props.path}}`, {
-    method: props.formType === "add" ? "POST" : "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(itemToEditFormFields.value),
-  })
-    .then((res) => res.json())
-    .then(() => {
+      createItem(`/budgets/${props.id ?? ""}`, formData);
+      break;
+    case "pot":
+      console.log("pouet");
+
+      formData = {
+        name: itemToEditFormFields.value.name,
+        target: itemToEditFormFields.value.amount,
+        theme: itemToEditFormFields.value.theme,
+      };
+      createItem(`/pots/${props.id ?? ""}`, formData);
+      break;
+
+    default:
+      console.log("Wrong Item type");
+
+      break;
+  }
+};
+
+const createItem = async (path: string, item: object) => {
+  try {
+    const res = await fetch(`${apiUrl}${path}`, {
+      method: props.formType === "add" ? "POST" : "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(item),
+    });
+
+    if (res.ok) {
       emits("updateUI");
       emits("closeModal");
-    })
-    .catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.log(err);
+  }
 };
 </script>
 
@@ -71,21 +104,20 @@ const handleSubmit = async (e: Event) => {
       <label for="itemToEditName" class="flex flex-col gap-1">
         {{ itemType }} name
         <input
-          v-model="itemToEditFormFields.category"
+          v-model="itemToEditFormFields.name"
           type="text"
           name="itemToEditName"
           id="itemToEditName"
           class="border-grey-900 h-11 rounded-lg border px-5 text-sm"
         />
         <span
-          >{{ itemToEditFormFields.category.length }} of 30 characters
-          left</span
+          >{{ itemToEditFormFields.name.length }} of 30 characters left</span
         >
       </label>
       <label for="target" class="flex flex-col gap-1">
         Target
         <input
-          v-model.number="itemToEditFormFields.maximum"
+          v-model.number="itemToEditFormFields.amount"
           type="number"
           name="target"
           id="target"

@@ -70,6 +70,30 @@ const handleSubmit = async (e: Event) => {
       ? potTotal + variableAmount.value
       : potTotal - variableAmount.value;
 
+  fetch(`http://localhost:3333/balances`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+
+      const newCurrentBalance =
+        props.formType === "add"
+          ? data.results[0].current - variableAmount.value
+          : data.results[0].current + variableAmount.value;
+
+      fetch(`http://localhost:3333/balances/1`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ current: newCurrentBalance }),
+      })
+        .then((res) => res.json())
+        .then(() => {
+          console.log("balance updated");
+        })
+        .catch((err) => console.log(err));
+    });
+
   await fetch(`http://localhost:3333/pots/${potId}`, {
     method: "PUT",
     headers: {

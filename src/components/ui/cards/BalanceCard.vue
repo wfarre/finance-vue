@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Icon from "../../Icon.vue";
+import { formatCurrency } from "../../../utils/utils";
 
 const props = defineProps<{
   bgColor: string;
@@ -22,7 +23,7 @@ const textColor = computed(
     <Icon v-if="icon" :iconUrl="icon" />
     <div class="">
       <dt class="mb-[11px] text-sm">{{ label }}</dt>
-      <dd class="text-[32px] font-bold">${{ value }}</dd>
+      <dd class="text-[32px] font-bold">{{ formatCurrency(value) }}</dd>
     </div>
   </dl>
 </template>

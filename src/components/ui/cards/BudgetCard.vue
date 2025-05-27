@@ -40,7 +40,10 @@ const spentMoneyPercent = computed(
   <article class="rounded-2xl bg-white p-8">
     <header class="relative">
       <div class="mb-5 flex items-center">
-        <span class="bg-secondary-green mr-4 h-4 w-4 rounded-full"></span>
+        <span
+          :style="`background-color: ${budget.theme}`"
+          class="mr-4 h-4 w-4 rounded-full"
+        ></span>
         <h3 class="text-xl font-bold">{{ budget.category }}</h3>
         <CardEllipsisMenu
           @delete="() => emits('delete', budget.id)"

@@ -3,15 +3,15 @@ import { computed, ref } from "vue";
 import PageHeader from "../components/layout/PageHeader.vue";
 import { TransactionFactory } from "../factories/TransactionFactory";
 import BudgetCard from "../components/ui/cards/BudgetCard.vue";
-import AddEditModal from "../components/views/AddEditModal.vue";
 import { BudgetFactory } from "../factories/BudgetFactory";
 import { apiUrl } from "../utils/actions";
-import DeleteModalCopy from "../components/views/DeleteModalCopy.vue";
+import DeleteModal from "../components/views/DeleteModal.vue";
 import ResultModal from "../components/views/ResultModal.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { BudgetAPI } from "../utils/typeBudget";
 import type { TransactionAPI } from "../utils/typeTransaction";
 import BudgetChart from "../components/ui/BudgetChart.vue";
+import AddEditModal from "../components/views/AddEditModal.vue";
 
 const isSuccessful = ref(false);
 const currentId = ref<null | number>(null);
@@ -22,8 +22,11 @@ const isModalOpen = ref(false);
 const budgetFetcher = useFetch<BudgetAPI[]>(`${apiUrl}/budgets`);
 const transactionFetcher = useFetch<TransactionAPI[]>(`${apiUrl}/transactions`);
 
-budgetFetcher.refetch();
-transactionFetcher.refetch();
+const refetchBudgets = budgetFetcher.refetch;
+const refecthTransactions = transactionFetcher.refetch;
+
+refetchBudgets();
+refecthTransactions();
 
 const budgetsData = computed(() =>
   budgetFetcher.data.value?.map((b) => BudgetFactory.create(b, "json")),
@@ -49,6 +52,17 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
   isResultModalOpen.value = true;
   isSuccessful.value = isSubmitSuccessful;
 };
+
+const addEditModalSubtitle = computed(() => {
+  switch (status.value) {
+    case "add":
+      return "Choose a category to set a spending budget. These categories can help you monitor spending.";
+    case "edit":
+      return "As your budgets change, feel free to update your spending limits.";
+    case "delete":
+      return "Are you sure you want to delete this budget? This action cannot be reversed, and all the data inside it will be removed forever.";
+  }
+});
 </script>
 
 <template>
@@ -64,22 +78,28 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
   />
   <main>
     <AddEditModal
-      v-if="isModalOpen && (status === 'edit' || status === 'add')"
-      item-type="Budget"
-      :item-to-edit="currentBudget"
-      subtitle="Choose a category to set a spending budget. These categories can help you monitor spending."
-      :form-type="status"
-      path="/budgets"
+      v-if="isModalOpen && (status === 'add' || status === 'edit')"
       @close-modal="handleCloseModalReset"
+      @update-u-i="() => budgetFetcher.refetch()"
+      :name="currentBudget?.category"
+      :amount="currentBudget?.maximum"
+      :theme="currentBudget?.theme"
+      :id="currentBudget?.id"
+      :form-type="status"
+      title="Budget"
+      :subtitle="addEditModalSubtitle ?? ''"
+      path="/budgets"
+      item-type="budget"
     />
 
-    <DeleteModalCopy
+    <DeleteModal
       v-if="currentBudget && isModalOpen && status === 'delete'"
       :id="currentBudget.id"
       :name="currentBudget.category"
       path="/budgets"
       @close-modal="handleCloseModalReset"
       @is-successful="handleFormResult"
+      @update-u-i="() => refetchBudgets()"
     />
 
     <ResultModal

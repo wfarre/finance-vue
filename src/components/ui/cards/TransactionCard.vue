@@ -9,8 +9,6 @@ const props = defineProps<{
   date: string;
 }>();
 
-console.log(formatDate(props.date));
-
 const formmattedAmount = computed(() => formatMoneyAmount(props.amount));
 const formattedDate = computed(() => formatDate(props.date));
 const amountColor = computed(

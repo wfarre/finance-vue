@@ -3,11 +3,12 @@ import PageHeader from "../components/layout/PageHeader.vue";
 import {
   filterBySearch,
   formatCurrency,
+  getRecurringSummaryContent,
   removeDoublon,
   sortBy,
 } from "../utils/utils";
 import SortSelect from "../components/ui/FilterSelect.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import SearchBar from "../components/ui/SearchBar.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { TransactionAPI } from "../utils/typeTransaction";
@@ -16,11 +17,9 @@ import { TransactionFactory } from "../factories/TransactionFactory";
 
 const sortFilter = ref("Oldest");
 const search = ref("");
-const summaryContent = ref({
-  paid: { quantity: 0, total: 0 },
-  due: { quantity: 0, total: 0 },
-  upcomming: { quantity: 0, total: 0 },
-});
+const summaryContent = computed(() =>
+  getRecurringSummaryContent(recurringTransactions.value),
+);
 
 const { data, error, isLoading, refetch } = useFetch<TransactionAPI[]>(
   "http://localhost:3333/transactions",
@@ -52,27 +51,6 @@ const filterTransaction = <T extends Transaction>(
   transactionsArray = filterBySearch(transactionsArray, searchBy);
   return transactionsArray;
 };
-
-watch(recurringTransactions, () => {
-  recurringTransactions.value?.forEach((t) => {
-    switch (t.isDueSoon) {
-      case "dueSoon":
-        summaryContent.value.due.quantity++;
-        summaryContent.value.due.total += t.amount;
-        break;
-      case "paid":
-        summaryContent.value.paid.quantity++;
-        summaryContent.value.paid.total += t.amount;
-        summaryContent.value.upcomming.quantity++;
-        summaryContent.value.upcomming.total += t.amount;
-        break;
-      default:
-        summaryContent.value.upcomming.quantity++;
-        summaryContent.value.upcomming.total += t.amount;
-        break;
-    }
-  });
-});
 </script>
 
 <template>

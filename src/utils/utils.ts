@@ -123,3 +123,33 @@ export const filterByCategory = <T extends TransactionFactory>(
 
 export const getTotal = <T extends object>(array: T[], key: keyof T): number =>
   array.reduce((acc, current) => (acc += +current[key]), 0);
+
+export const getRecurringSummaryContent = (
+  recurringTransactions?: Transaction[],
+) => {
+  let summaryContent = {
+    paid: { quantity: 0, total: 0 },
+    due: { quantity: 0, total: 0 },
+    upcomming: { quantity: 0, total: 0 },
+  };
+
+  recurringTransactions?.forEach((t) => {
+    switch (t.isDueSoon) {
+      case "dueSoon":
+        summaryContent.due.quantity++;
+        summaryContent.due.total += t.amount;
+        break;
+      case "paid":
+        summaryContent.paid.quantity++;
+        summaryContent.paid.total += t.amount;
+        summaryContent.upcomming.quantity++;
+        summaryContent.upcomming.total += t.amount;
+        break;
+      default:
+        summaryContent.upcomming.quantity++;
+        summaryContent.upcomming.total += t.amount;
+        break;
+    }
+  });
+  return summaryContent;
+};

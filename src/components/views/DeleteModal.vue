@@ -13,8 +13,8 @@ const handleSubmit = async (e: Event) => {
   e.preventDefault();
   try {
     await deleteItem(props.path, props.id);
-    emits("isSuccessful", true);
     emits("updateUI");
+    emits("isSuccessful", true);
   } catch (err) {
     emits("isSuccessful", false);
   }

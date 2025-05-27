@@ -25,7 +25,7 @@ window.addEventListener("click", (e) => {
   </button>
   <ul
     :class="isMenuOpen ? 'scale-100' : 'scale-0'"
-    class="absolute top-6 right-0 rounded-lg bg-white px-5 shadow-2xl duration-300"
+    class="absolute top-6 right-0 z-50 rounded-lg bg-white px-5 shadow-2xl duration-300"
   >
     <li>
       <button

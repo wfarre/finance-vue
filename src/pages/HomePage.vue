@@ -4,15 +4,27 @@
     <section
       class="mb-8 flex w-full flex-col justify-between gap-6 lg:flex-row"
     >
-      <ValueCard label="Total Saved" :value="4836.0" bg-color="bg-grey-900" />
-      <ValueCard label="Total Saved" :value="4836.0" bg-color="bg-white" />
-      <ValueCard label="Total Saved" :value="4836.0" bg-color="bg-white" />
+      <BalanceCard
+        label="Current Balance"
+        :value="balance ? balance.current : 0"
+        bg-color="bg-grey-900"
+      />
+      <BalanceCard
+        label="Income"
+        :value="balance ? balance.income : 0"
+        bg-color="bg-white"
+      />
+      <BalanceCard
+        label="Expenses"
+        :value="balance ? balance.expenses : 0"
+        bg-color="bg-white"
+      />
     </section>
     <section class="flex flex-col gap-6 lg:flex-row">
       <div class="flex flex-6/12 flex-col gap-6">
         <OverviewCard heading-text="Pots" details-link="/pots">
           <div class="flex items-center gap-5">
-            <ValueCard
+            <BalanceCard
               label="Total Saved"
               :value="potsTotalSaved ? potsTotalSaved : 0"
               icon="/images/icon-pot.svg"
@@ -72,23 +84,23 @@
             >
               <p class="text-grey-500 text-sm">Paid Bills</p>
               <p class="text-grey-900 text-sm font-bold">
-                {{ summaryContent.paid.total }}
+                {{ formatCurrency(summaryContent.paid.total) }}
               </p>
             </li>
             <li
               class="border-l-secondary-yellow bg-beige-100 flex justify-between rounded-xl border-l-4 px-4 py-5"
             >
-              <p class="text-grey-500 text-sm">Paid Bills</p>
+              <p class="text-grey-500 text-sm">Total Upcoming</p>
               <p class="text-grey-900 text-sm font-bold">
-                {{ summaryContent.paid.total }}
+                {{ formatCurrency(summaryContent.upcomming.total) }}
               </p>
             </li>
             <li
               class="border-l-secondary-cyan bg-beige-100 flex justify-between rounded-xl border-l-4 px-4 py-5"
             >
-              <p class="text-grey-500 text-sm">Paid Bills</p>
+              <p class="text-grey-500 text-sm">Due Soon</p>
               <p class="text-grey-900 text-sm font-bold">
-                {{ summaryContent.paid.total }}
+                {{ formatCurrency(summaryContent.due.total) }}
               </p>
             </li>
           </ul>
@@ -101,11 +113,10 @@
 <script setup lang="ts">
 import OverviewCard from "../components/ui/cards/OverviewCard.vue";
 import PotsSplitCard from "../components/ui/cards/PotsSplitCard.vue";
-import ValueCard from "../components/ui/cards/ValueCard.vue";
+import BalanceCard from "../components/ui/cards/BalanceCard.vue";
 import TransactionCard from "../components/ui/cards/TransactionCard.vue";
 import { computed, ref, watch } from "vue";
 import PageHeader from "../components/layout/PageHeader.vue";
-import BudgetChart from "../components/ui/BudgetChart.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { BudgetAPI } from "../utils/typeBudget";
 import { apiUrl } from "../utils/actions";
@@ -115,7 +126,13 @@ import { TransactionFactory } from "../factories/TransactionFactory";
 import type { PotAPI } from "../utils/typePot";
 import { PotFactory } from "../factories/PotFactory";
 import BudgetChartCopy from "../components/ui/BudgetChartCopy.vue";
-import { removeDoublon } from "../utils/utils";
+import {
+  formatCurrency,
+  getRecurringSummaryContent,
+  removeDoublon,
+} from "../utils/utils";
+import { BalanceFactory } from "../factories/BalanceFactory";
+import type { BalanceAPI } from "../utils/typeBalance";
 
 const allData = ref(null);
 
@@ -127,11 +144,11 @@ fetch("/data/data.json")
 const budgetFetcher = useFetch<BudgetAPI[]>(`${apiUrl}/budgets`);
 const transactionFetcher = useFetch<TransactionAPI[]>(`${apiUrl}/transactions`);
 const potFetcher = useFetch<PotAPI[]>(`${apiUrl}/pots`);
-const summaryContent = ref({
-  paid: { quantity: 0, total: 0 },
-  due: { quantity: 0, total: 0 },
-  upcomming: { quantity: 0, total: 0 },
-});
+const balanceFetcher = useFetch<BalanceAPI[]>(`${apiUrl}/balances`);
+
+const summaryContent = computed(() =>
+  getRecurringSummaryContent(recurringTransactions.value),
+);
 
 const budgets = computed(() =>
   budgetFetcher.data.value?.map((b) => BudgetFactory.create(b, "json")),
@@ -143,6 +160,11 @@ const transactions = computed(() =>
 
 const pots = computed(() =>
   potFetcher.data.value?.map((p) => PotFactory.create(p, "json")),
+);
+
+const balance = computed(
+  () =>
+    balanceFetcher.data.value?.map((b) => BalanceFactory.create(b, "json"))[0],
 );
 
 const transactionsDataToDisplay = computed(() =>
@@ -160,27 +182,7 @@ const recurringTransactions = computed(() => {
   return recurringTransactions && removeDoublon(recurringTransactions);
 });
 
-watch(recurringTransactions, () => {
-  recurringTransactions.value?.forEach((t) => {
-    switch (t.isDueSoon) {
-      case "dueSoon":
-        summaryContent.value.due.quantity++;
-        summaryContent.value.due.total += t.amount;
-        break;
-      case "paid":
-        summaryContent.value.paid.quantity++;
-        summaryContent.value.paid.total += t.amount;
-        summaryContent.value.upcomming.quantity++;
-        summaryContent.value.upcomming.total += t.amount;
-        break;
-      default:
-        summaryContent.value.upcomming.quantity++;
-        summaryContent.value.upcomming.total += t.amount;
-        break;
-    }
-  });
-});
-
+balanceFetcher.refetch();
 transactionFetcher.refetch();
 budgetFetcher.refetch();
 potFetcher.refetch();
