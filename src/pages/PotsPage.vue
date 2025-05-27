@@ -49,6 +49,17 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
   isResultModalOpen.value = true;
   isSuccessful.value = isSubmitSuccessful;
 };
+
+const addEditModalSubtitle = computed(() => {
+  switch (modalStatus.value) {
+    case "add":
+      return "Create a pot to set savings targets. These can help keep you on track as you save for special purchases.";
+    case "edit":
+      return "If your saving targets change, feel free to update your pots.";
+    default:
+      return "";
+  }
+});
 </script>
 
 <template>
@@ -75,14 +86,13 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
       v-if="isModalOpen && (modalStatus === 'add' || modalStatus === 'edit')"
       @close-modal="handleCloseModalReset"
       @update-u-i="() => refetch()"
+      @is-successful="handleFormResult"
       :name="currentPot?.name"
       :amount="currentPot?.target"
       :theme="currentPot?.theme"
       :id="currentPot?.id"
       :form-type="modalStatus"
-      title="Pot"
-      subtitle="adsdad"
-      path="/pots"
+      :subtitle="addEditModalSubtitle"
       item-type="pot"
     />
 
@@ -101,7 +111,9 @@ const handleFormResult = (isSubmitSuccessful: boolean) => {
     />
 
     <DeleteModal
-      v-if="currentPot && isModalOpen && modalStatus === 'delete'"
+      v-if="
+        currentPot && isModalOpen && modalStatus === 'delete' && currentPot.id
+      "
       :id="currentPot.id"
       :name="currentPot.name"
       path="/pots"

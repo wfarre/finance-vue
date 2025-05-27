@@ -81,14 +81,13 @@ const addEditModalSubtitle = computed(() => {
       v-if="isModalOpen && (status === 'add' || status === 'edit')"
       @close-modal="handleCloseModalReset"
       @update-u-i="() => budgetFetcher.refetch()"
+      @is-successful="handleFormResult"
       :name="currentBudget?.category"
       :amount="currentBudget?.maximum"
       :theme="currentBudget?.theme"
       :id="currentBudget?.id"
       :form-type="status"
-      title="Budget"
       :subtitle="addEditModalSubtitle ?? ''"
-      path="/budgets"
       item-type="budget"
     />
 

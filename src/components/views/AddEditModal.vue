@@ -3,10 +3,12 @@ import { computed, ref } from "vue";
 import ModalLayout from "../layout/ModalLayout.vue";
 import { kColorsHEX } from "../../utils/constants";
 import Select from "../ui/Select.vue";
-import { apiUrl } from "../../utils/actions";
+import { createItem, updateItem } from "../../utils/actions";
+
 const emits = defineEmits<{
   (e: "closeModal"): void;
   (e: "updateUI"): void;
+  (e: "isSuccessful", success: boolean): void;
 }>();
 const props = defineProps<{
   formType: "add" | "edit";
@@ -16,7 +18,6 @@ const props = defineProps<{
   theme?: string;
   itemType: "pot" | "budget";
   subtitle: string;
-  path: string;
 }>();
 
 const title = computed(() =>
@@ -41,44 +42,66 @@ const handleSubmit = async (e: Event) => {
         maximum: itemToEditFormFields.value.amount,
         theme: itemToEditFormFields.value.theme,
       };
-      console.log("nya");
+      props.formType === "add"
+        ? handleCreate("/budgets", formData)
+        : handleUpdate("/budgets", formData);
 
-      createItem(`/budgets/${props.id ?? ""}`, formData);
       break;
     case "pot":
-      console.log("pouet");
-
       formData = {
         name: itemToEditFormFields.value.name,
         target: itemToEditFormFields.value.amount,
         theme: itemToEditFormFields.value.theme,
       };
-      createItem(`/pots/${props.id ?? ""}`, formData);
+      props.formType === "add"
+        ? handleCreate("/pots", formData)
+        : handleUpdate("/pots", formData);
       break;
-
     default:
       console.log("Wrong Item type");
-
       break;
   }
 };
 
-const createItem = async (path: string, item: object) => {
+const handleCreate = async (
+  path: string,
+  formData: {
+    name?: string;
+    category?: string;
+    maximum?: number;
+    target?: number;
+    theme: string;
+  },
+) => {
   try {
-    const res = await fetch(`${apiUrl}${path}`, {
-      method: props.formType === "add" ? "POST" : "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(item),
-    });
-
-    if (res.ok) {
-      emits("updateUI");
-      emits("closeModal");
-    }
+    await createItem(path, formData);
+    emits("updateUI");
+    emits("closeModal");
+    emits("isSuccessful", true);
   } catch (err) {
     console.log(err);
+    emits("isSuccessful", false);
+  }
+};
+
+const handleUpdate = async (
+  path: string,
+  formData: {
+    name?: string;
+    category?: string;
+    maximum?: number;
+    target?: number;
+    theme: string;
+  },
+) => {
+  try {
+    props.id && (await updateItem(path, props.id, formData));
+    emits("updateUI");
+    emits("closeModal");
+    emits("isSuccessful", true);
+  } catch (err) {
+    console.log(err);
+    emits("isSuccessful", false);
   }
 };
 </script>
@@ -90,10 +113,6 @@ const createItem = async (path: string, item: object) => {
     :modal-text="subtitle"
     :form="formType + 'Form'"
   >
-    <pre>
-    {{ itemToEditFormFields }}
-  </pre
-    >
     <form
       :id="formType + 'Form'"
       action=""

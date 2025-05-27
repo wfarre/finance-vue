@@ -122,7 +122,9 @@ const filterTransaction = <T extends Transaction>(
           />
         </header>
         <table class="w-full border-separate border-spacing-6">
-          <thead class="text-beige-500 text-left text-xs font-normal">
+          <thead
+            class="text-beige-500 hidden text-left text-xs font-normal md:table-header-group"
+          >
             <tr>
               <th class="font-normal">Bill Title</th>
               <th class="font-normal">Due Date</th>
@@ -130,7 +132,10 @@ const filterTransaction = <T extends Transaction>(
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in displayedTransactions">
+            <tr
+              class="border-b-grey-100 flex flex-col gap-2 border-b py-5 last:border-b-0 last:pb-0 md:table-row"
+              v-for="transaction in displayedTransactions"
+            >
               <td class="flex items-center gap-4 text-sm font-bold">
                 <div class="relative h-8 w-8 overflow-hidden rounded-full">
                   <img
@@ -143,33 +148,35 @@ const filterTransaction = <T extends Transaction>(
                 </div>
                 {{ transaction.name }}
               </td>
-              <td
-                :class="
-                  transaction.isDueSoon === 'paid'
-                    ? 'text-secondary-green'
-                    : 'text-grey-500'
-                "
-                class="relative items-center text-xs"
-              >
-                <div class="flex gap-2">
-                  <p>{{ transaction.formattedDateTime }}</p>
-                  <img
-                    v-if="transaction.isDueSoonIcon"
-                    :src="transaction.isDueSoonIcon"
-                    alt=""
-                  />
-                </div>
-              </td>
-              <td
-                :class="
-                  transaction.isDueSoon === 'dueSoon'
-                    ? 'text-secondary-red'
-                    : 'text-grey-900'
-                "
-                class="text-sm"
-              >
-                {{ formatCurrency(transaction.amount) }}
-              </td>
+              <div class="flex justify-between">
+                <td
+                  :class="
+                    transaction.isDueSoon === 'paid'
+                      ? 'text-secondary-green'
+                      : 'text-grey-500'
+                  "
+                  class="relative items-center text-xs md:table-cell"
+                >
+                  <div class="flex gap-2">
+                    <p>{{ transaction.formattedDateTime }}</p>
+                    <img
+                      v-if="transaction.isDueSoonIcon"
+                      :src="transaction.isDueSoonIcon"
+                      alt=""
+                    />
+                  </div>
+                </td>
+                <td
+                  :class="
+                    transaction.isDueSoon === 'dueSoon'
+                      ? 'text-secondary-red'
+                      : 'text-grey-900'
+                  "
+                  class="text-sm md:table-cell"
+                >
+                  {{ formatCurrency(transaction.amount) }}
+                </td>
+              </div>
             </tr>
           </tbody>
         </table>
@@ -177,3 +184,9 @@ const filterTransaction = <T extends Transaction>(
     </div>
   </main>
 </template>
+
+<style>
+/* thead{
+  display: ;
+} */
+</style>

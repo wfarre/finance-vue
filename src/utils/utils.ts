@@ -1,4 +1,3 @@
-import Icon from "../components/Icon.vue";
 import type { TransactionFactory } from "../factories/TransactionFactory";
 import type { Transaction } from "../models/Transaction";
 import { dueDate } from "./constants";

@@ -95,9 +95,9 @@ const spentMoneyPercent = computed(
             class="border-b-grey-500 border-b-1 last:border-0"
             v-for="transaction in transactionsToDisplay"
           >
-            <td class="flex items-center gap-4 py-3 text-xs font-bold">
+            <td class="flex flex-row items-center gap-4 py-3 text-xs font-bold">
               <picture
-                class="relative block h-10 w-10 overflow-hidden rounded-full"
+                class="relative hidden h-10 w-10 overflow-hidden rounded-full md:block"
               >
                 <img
                   class="absolute top-0 left-0 h-full w-full"
@@ -105,7 +105,9 @@ const spentMoneyPercent = computed(
                   alt=""
                 />
               </picture>
-              {{ transaction.name }}
+              <p class="flex h-10 items-center">
+                {{ transaction.name }}
+              </p>
             </td>
             <td class="py-3">
               <dl class="flex flex-col items-end gap-1">

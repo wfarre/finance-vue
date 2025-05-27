@@ -1,7 +1,7 @@
 import type { PotAPI } from "../utils/typePot";
 import { roundNumberToTwoDecinals } from "../utils/utils";
 export interface IPot {
-  id: number;
+  id?: number;
   name: string;
   target: number;
   total: number;
@@ -9,7 +9,7 @@ export interface IPot {
 }
 
 export class Pot {
-  private _id: number;
+  private _id?: number;
   private _name: string;
   private _target: number;
   private _total: number;

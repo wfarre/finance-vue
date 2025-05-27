@@ -18,7 +18,7 @@ const emit = defineEmits<{ (e: "closeModal"): void }>();
       v-on:click="() => emit('closeModal')"
       class="bg-grey-900/10 fixed top-0 left-0 flex h-full w-full"
     ></div>
-    <section class="absolute w-140 rounded-2xl bg-white p-8">
+    <section class="absolute w-[335px] rounded-2xl bg-white p-8 md:w-140">
       <header class="">
         <div class="flex items-center justify-between">
           <h2 class="text-[32px] font-bold">{{ modalTitle }}</h2>
