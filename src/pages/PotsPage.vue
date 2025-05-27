@@ -12,14 +12,14 @@ import DeleteModal from "../components/views/DeleteModal.vue";
 import ResultModal from "../components/views/ResultModal.vue";
 import AddEditModal from "../components/views/AddEditModal.vue";
 
-const { data, error, isLoading, refetch } = useFetch<PotAPI[]>(
+const { data, error, refetch } = useFetch<PotAPI[]>(
   "http://localhost:3333/pots",
 );
 
 refetch();
 
 const potsData = computed(() =>
-  data.value?.map((pot: PotAPI) => PotFactory.create(pot, "json")),
+  data.value?.map((pot: PotAPI) => PotFactory.create(pot, "json") as IPot),
 );
 
 const isSavingsModalOpen = ref(false);
@@ -32,8 +32,8 @@ const isResultModalOpen = ref(false);
 
 const currentPot = computed(() => {
   return (
-    potsData.value?.find((item) => item.id === currentId.value) ??
-    (undefined as IPot | undefined)
+    (potsData.value?.find((item) => item.id === currentId.value) as IPot) ??
+    undefined
   );
 });
 
@@ -75,7 +75,7 @@ const addEditModalSubtitle = computed(() => {
   />
   <main>
     <SavingsEditFormModal
-      v-if="isSavingsModalOpen"
+      v-if="isSavingsModalOpen && currentPot"
       @close-modal="handleCloseModalReset"
       @update-u-i="() => refetch()"
       :pot="currentPot"

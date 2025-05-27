@@ -115,7 +115,7 @@ import OverviewCard from "../components/ui/cards/OverviewCard.vue";
 import PotsSplitCard from "../components/ui/cards/PotsSplitCard.vue";
 import BalanceCard from "../components/ui/cards/BalanceCard.vue";
 import TransactionCard from "../components/ui/cards/TransactionCard.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import PageHeader from "../components/layout/PageHeader.vue";
 import { useFetch } from "../utils/hooks/useFetch";
 import type { BudgetAPI } from "../utils/typeBudget";

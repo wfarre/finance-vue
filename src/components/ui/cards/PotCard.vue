@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, type PropType } from "vue";
+import { computed, ref } from "vue";
 import Icon from "../../Icon.vue";
 import Button from "../Button.vue";
 import { formatCurrency } from "../../../utils/utils";
-import type { PotFactory } from "../../../factories/PotFactory";
-import type { IPot, Pot } from "../../../models/Pot";
+import type { IPot } from "../../../models/Pot";
 
 const isMenuOpened = ref(false);
 const props = defineProps<{

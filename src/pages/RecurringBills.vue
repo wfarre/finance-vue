@@ -21,9 +21,11 @@ const summaryContent = computed(() =>
   getRecurringSummaryContent(recurringTransactions.value),
 );
 
-const { data, error, isLoading, refetch } = useFetch<TransactionAPI[]>(
+const { data, error, refetch } = useFetch<TransactionAPI[]>(
   "http://localhost:3333/transactions",
 );
+
+refetch();
 
 const recurringTransactions = computed(() => {
   const transactions = data.value
@@ -148,35 +150,33 @@ const filterTransaction = <T extends Transaction>(
                 </div>
                 {{ transaction.name }}
               </td>
-              <div class="flex justify-between">
-                <td
-                  :class="
-                    transaction.isDueSoon === 'paid'
-                      ? 'text-secondary-green'
-                      : 'text-grey-500'
-                  "
-                  class="relative items-center text-xs md:table-cell"
-                >
-                  <div class="flex gap-2">
-                    <p>{{ transaction.formattedDateTime }}</p>
-                    <img
-                      v-if="transaction.isDueSoonIcon"
-                      :src="transaction.isDueSoonIcon"
-                      alt=""
-                    />
-                  </div>
-                </td>
-                <td
-                  :class="
-                    transaction.isDueSoon === 'dueSoon'
-                      ? 'text-secondary-red'
-                      : 'text-grey-900'
-                  "
-                  class="text-sm md:table-cell"
-                >
-                  {{ formatCurrency(transaction.amount) }}
-                </td>
-              </div>
+              <td
+                :class="
+                  transaction.isDueSoon === 'paid'
+                    ? 'text-secondary-green'
+                    : 'text-grey-500'
+                "
+                class="relative items-center text-xs md:table-cell"
+              >
+                <div class="flex gap-2">
+                  <p>{{ transaction.formattedDateTime }}</p>
+                  <img
+                    v-if="transaction.isDueSoonIcon"
+                    :src="transaction.isDueSoonIcon"
+                    alt=""
+                  />
+                </div>
+              </td>
+              <td
+                :class="
+                  transaction.isDueSoon === 'dueSoon'
+                    ? 'text-secondary-red'
+                    : 'text-grey-900'
+                "
+                class="text-sm md:table-cell"
+              >
+                {{ formatCurrency(transaction.amount) }}
+              </td>
             </tr>
           </tbody>
         </table>
