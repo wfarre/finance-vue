@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { faL } from "@fortawesome/free-solid-svg-icons";
 import { computed, ref } from "vue";
 
 const model = defineModel();

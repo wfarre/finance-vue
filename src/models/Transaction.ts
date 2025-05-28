@@ -3,7 +3,6 @@ import {
   checkIfTransactionDueSoon,
   formatDate,
   formatMoneyAmount,
-  getRemainingDaysBeforeDueDate,
 } from "../utils/utils";
 
 export class Transaction {

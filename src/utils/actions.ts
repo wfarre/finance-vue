@@ -1,7 +1,5 @@
-import { ref } from "vue";
-
 export const apiUrl = "http://localhost:3333";
-const jsonPath = "../data/data.json";
+export const jsonPath = "../data/data.json";
 
 export const deleteItem = async (path: string, id: number) => {
   try {

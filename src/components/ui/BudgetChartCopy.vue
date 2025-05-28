@@ -43,7 +43,7 @@ import {
 } from "chart.js";
 import { Budget } from "../../models/Budget";
 import type { Transaction } from "../../models/Transaction";
-import { formatCurrency, formatMoneyAmount, getTotal } from "../../utils/utils";
+import { formatCurrency, getTotal } from "../../utils/utils";
 
 const props = defineProps<{ budgets: Budget[]; transactions: Transaction[] }>();
 const spendingSummary = computed(() => getSpendingsSummary());
